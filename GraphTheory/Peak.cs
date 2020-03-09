@@ -17,8 +17,7 @@ namespace GraphTheory
     class Peak
     {
         static List<Peak> allPeeks;
-        private Ellipse El { get; set; }
-        private Label Name { get; set; }
+        private Grid El { get; set; }
         public List<Relation> Relations { get; set; }
 
          public enum TypeOfRelation
@@ -30,15 +29,14 @@ namespace GraphTheory
         {
            allPeeks = new List<Peak>();
         }
-        public Peak(Ellipse el,Label name)
+        public Peak(Grid el)
         {
             El = el;
-            Name = name;
             allPeeks.Add(this);
         }
         public void SetName(string name)
         {
-            Name.Content = name;
+            (El.Children[1] as Label).Content = name;
         }
     }
 }

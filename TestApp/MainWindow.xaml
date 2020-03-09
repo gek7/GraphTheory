@@ -7,7 +7,11 @@
         xmlns:out="clr-namespace:GraphTheory;assembly=GraphTheory"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <out:GraphControl PeekColor="Red" PeekWidth="50"/>
-    </Grid>
+    <DockPanel LastChildFill="True">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
+            <TextBox x:Name="tb_font" Height="30" Width="100" FontSize="20"/>
+            <Button Content="OK" Width="50" Click="Button_Click"/>
+        </StackPanel>
+        <out:GraphControl Name="GraphComp" PeekColor="Red" PeekWidth="50"/>
+    </DockPanel>
 </Window>

@@ -40,6 +40,19 @@ namespace GraphTheory
                 if (value > 0 && value != _peekWidth)
                 {
                     _peekWidth = value;
+
+                    foreach (var item in canv.Children)
+                    {
+                        if (item is Grid)
+                        {
+                            Ellipse el = ((item as Grid).Children[0] as Ellipse);
+                            DoubleAnimation da = new DoubleAnimation(value, TimeSpan.FromSeconds(0.3));
+                            el.BeginAnimation(Ellipse.WidthProperty, da);
+                            el.BeginAnimation(Ellipse.HeightProperty, da);
+                            //el.Width = value;
+                            //el.Height = value;
+                        }
+                    }
                 }
             }
         }
@@ -92,27 +105,37 @@ namespace GraphTheory
             g.Children.Add(el);
             el.Stroke = Brushes.Black;
             el.Fill = PeekColor ?? Brushes.White;
-            ////// Привязка координат надписи к координатам вершины /////
+            ////// Создание надписи в эллипсе /////
             Label l = new Label();
             l.Content = PeekNum.ToString();
             l.VerticalAlignment = VerticalAlignment.Center;
             l.HorizontalAlignment = HorizontalAlignment.Center;
             g.Children.Add(l);
+            // Установка зависимости размера шрифта от размеров эллипса
+            Binding b = new Binding();
+            b.Source = el;
+            b.Path = new PropertyPath(Ellipse.WidthProperty);
+            b.Converter = new FontSizeConverter();
+            l.SetBinding(Label.FontSizeProperty, b);
+            // Добавление созданных эл-ов на canvas
             canv.Children.Add(g);
-            // Анимация
 
-            DoubleAnimation da = new DoubleAnimation(0,PeekWidth, TimeSpan.FromSeconds(0.3));
+            // Анимация
+            DoubleAnimation da = new DoubleAnimation(0.1,PeekWidth, TimeSpan.FromSeconds(0.3));
             DoubleAnimation da2 = new DoubleAnimation(x,x - PeekWidth / 2, TimeSpan.FromSeconds(0.3));
             DoubleAnimation da3 = new DoubleAnimation(y,y - PeekWidth / 2, TimeSpan.FromSeconds(0.3));
-            DoubleAnimation da4 = new DoubleAnimation(0.1,PeekWidth / 2, TimeSpan.FromSeconds(0.3));
 
             el.BeginAnimation(Ellipse.WidthProperty, da);
             el.BeginAnimation(Ellipse.HeightProperty, da);
             g.BeginAnimation(Canvas.LeftProperty, da2);
             g.BeginAnimation(Canvas.TopProperty, da3);
-            l.BeginAnimation(Label.FontSizeProperty, da4);
             PeekNum++;
-            Peak p = new Peak(el, l);
+            new Peak(g);
+        }
+
+        private void canv_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
