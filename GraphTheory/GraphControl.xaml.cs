@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 
 namespace GraphTheory
 {
-    public enum mode
+    public enum Mode
     {
         AddPeak,
         AddEdge
@@ -29,9 +29,10 @@ namespace GraphTheory
     {
         public static readonly DependencyProperty PeakColorProperty;
         public static readonly DependencyProperty PeakWidthProperty;
-        private Peak firstSelectedPeak;
+        private Peak FirstSelectedPeak;
+        private Peak SecondSelectedPeak;
         private int PeakNum { get; set; }
-        public mode CurrentMode { get; set; }
+        public Mode CurrentMode { get; set; }
         #region CLR свойства для свойств зависимости
         public Brush PeakColor
         {
@@ -122,6 +123,15 @@ namespace GraphTheory
             {
                 case TypeOfRelation.Oriented:
                     firstPeak.Relations.Add(rel);
+                    ArrowLine ar = new ArrowLine();
+                    ar.X1 = Canvas.GetLeft(firstPeak.El) + PeakWidth / 2;
+                    ar.Y1 = Canvas.GetTop(firstPeak.El) + PeakWidth / 2;
+                    ar.X2 = Canvas.GetLeft(secondPeak.El) + PeakWidth / 2;
+                    ar.Y2 = Canvas.GetTop(secondPeak.El) + PeakWidth / 2;
+                    ar.Stroke = Brushes.Green;
+                    ar.StrokeThickness = 4;
+                    Canvas.SetZIndex(ar, -1);
+                    canv.Children.Add(ar);
                     break;
                 case TypeOfRelation.NonOriented:
                     firstPeak.Relations.Add(rel);
@@ -133,12 +143,15 @@ namespace GraphTheory
                     l.Y2= Canvas.GetTop(secondPeak.El)+ PeakWidth / 2;
                     l.Stroke = Brushes.Green;
                     l.StrokeThickness = 4;
+                    Canvas.SetZIndex(l, -1);
                     canv.Children.Add(l);
-                    firstSelectedPeak = null;
                     break;
             }
+            SecondSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+            FirstSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+            FirstSelectedPeak = null;
+            SecondSelectedPeak = null;
         }
-
         private void createPeak(object sender, MouseButtonEventArgs e)
         {
             Grid g = new Grid();
@@ -162,7 +175,8 @@ namespace GraphTheory
             l.SetBinding(Label.FontSizeProperty, b);
             // Добавление созданных эл-ов на canvas
             canv.Children.Add(g);
-
+            // Для отладки
+            el.Opacity = 0.5;
             // Анимация
             DoubleAnimation da = new DoubleAnimation(0.1,PeakWidth, TimeSpan.FromSeconds(0.3));
             DoubleAnimation da2 = new DoubleAnimation(x,x - PeakWidth / 2, TimeSpan.FromSeconds(0.3));
@@ -177,24 +191,46 @@ namespace GraphTheory
         }
         private void SelectPeakForEdge(object sender, MouseButtonEventArgs e)
         {
-            if((e.Source as FrameworkElement).Parent is Grid && firstSelectedPeak == null)
+            DoubleAnimation da = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.3));
+            da.AutoReverse = true;
+            da.RepeatBehavior = RepeatBehavior.Forever;
+            if ((e.Source as FrameworkElement).Parent is Grid && FirstSelectedPeak == null)
             {
-                firstSelectedPeak = new Peak((e.Source as FrameworkElement).Parent as Grid);
+                FirstSelectedPeak = new Peak((e.Source as FrameworkElement).Parent as Grid);
+                FirstSelectedPeak.El.BeginAnimation(OpacityProperty, da);
+            }
+            else if((e.Source as FrameworkElement).Parent is Grid && SecondSelectedPeak==null)
+            {
+                SecondSelectedPeak = new Peak((e.Source as FrameworkElement).Parent as Grid);
+                SecondSelectedPeak.El.BeginAnimation(OpacityProperty, da);
+                FirstSelectedPeak.El.BeginAnimation(OpacityProperty, da);
+                AddNewRelation(FirstSelectedPeak, SecondSelectedPeak, TypeOfRelation.Oriented);
             }
             else if((e.Source as FrameworkElement).Parent is Grid)
             {
-                Peak p = new Peak((e.Source as FrameworkElement).Parent as Grid);
-                AddNewRelation(firstSelectedPeak, p, TypeOfRelation.NonOriented);
+                FirstSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+                SecondSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+                SecondSelectedPeak = null;
+                //SecondSelectedPeak
+                FirstSelectedPeak = new Peak((e.Source as FrameworkElement).Parent as Grid);
+                FirstSelectedPeak.El.BeginAnimation(Grid.OpacityProperty, da);
             }
+        }
+        public void CancelSelectionPeaks()
+        {
+            FirstSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+            SecondSelectedPeak.El.BeginAnimation(OpacityProperty, null);
+            FirstSelectedPeak = null;
+            SecondSelectedPeak = null;
         }
         private void canv_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             switch (CurrentMode)
             {
-                case mode.AddPeak:
+                case Mode.AddPeak:
                     createPeak(sender, e);
                     break;
-                case mode.AddEdge:
+                case Mode.AddEdge:
                     SelectPeakForEdge(sender, e);
                     break;
                 default:

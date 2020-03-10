@@ -43,11 +43,11 @@ namespace TestApp
                 RadioButton r = sender as RadioButton;
                 if (r == addPeak)
                 {
-                    GraphComp.CurrentMode = GraphTheory.mode.AddPeak;
+                    GraphComp.CurrentMode = GraphTheory.Mode.AddPeak;
                 }
                 if (r == addEdge)
                 {
-                    GraphComp.CurrentMode = GraphTheory.mode.AddEdge;
+                    GraphComp.CurrentMode = GraphTheory.Mode.AddEdge;
                 }
             }
         }

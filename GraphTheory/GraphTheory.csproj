@@ -48,6 +48,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrowLine.cs" />
     <Compile Include="FontSizeConverter.cs" />
     <Compile Include="Relation.cs" />
     <Page Include="GraphControl.xaml">
