@@ -14,17 +14,12 @@ namespace GraphTheory
         NonOriented
     }
 
-    class Peak
+    public class Peak
     {
         static List<Peak> allPeeks;
-        private Grid El { get; set; }
+        public Grid El { get; set; }
         public List<Relation> Relations { get; set; }
 
-         public enum TypeOfRelation
-    {
-        Oriented,
-        NonOriented
-    }
         static Peak()
         {
            allPeeks = new List<Peak>();
@@ -32,11 +27,13 @@ namespace GraphTheory
         public Peak(Grid el)
         {
             El = el;
+            Relations = new List<Relation>();
             allPeeks.Add(this);
         }
         public void SetName(string name)
         {
             (El.Children[1] as Label).Content = name;
+
         }
     }
 }

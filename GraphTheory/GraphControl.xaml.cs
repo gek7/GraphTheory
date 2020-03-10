@@ -16,63 +16,54 @@ using System.Windows.Shapes;
 
 namespace GraphTheory
 {
+    public enum mode
+    {
+        AddPeak,
+        AddEdge
+    }
+
     /// <summary>
-    /// Логика взаимодействия для UserControl1.xaml
+    /// Компонент 'теория графов'
     /// </summary>
     public partial class GraphControl : UserControl
     {
-        public static DependencyProperty PeekColorProperty;
-        public int PeekNum { get; set; }
-        public Brush PeekColor
+        public static readonly DependencyProperty PeakColorProperty;
+        public static readonly DependencyProperty PeakWidthProperty;
+        private Peak firstSelectedPeak;
+        private int PeakNum { get; set; }
+        public mode CurrentMode { get; set; }
+        #region CLR свойства для свойств зависимости
+        public Brush PeakColor
         {
-            get { return (Brush)GetValue(PeekColorProperty); }
-            set { SetValue(PeekColorProperty, value); }
+            get { return (Brush)GetValue(PeakColorProperty); }
+            set { SetValue(PeakColorProperty, value); }
         }
-        double _peekWidth;
-        public double PeekWidth
-        {
-            get
-            {
-                return _peekWidth;
-            }
-            set
-            {
-                if (value > 0 && value != _peekWidth)
-                {
-                    _peekWidth = value;
 
-                    foreach (var item in canv.Children)
-                    {
-                        if (item is Grid)
-                        {
-                            Ellipse el = ((item as Grid).Children[0] as Ellipse);
-                            DoubleAnimation da = new DoubleAnimation(value, TimeSpan.FromSeconds(0.3));
-                            el.BeginAnimation(Ellipse.WidthProperty, da);
-                            el.BeginAnimation(Ellipse.HeightProperty, da);
-                            //el.Width = value;
-                            //el.Height = value;
-                        }
-                    }
-                }
-            }
+        public double PeakWidth
+        {
+            get { return (double)GetValue(PeakWidthProperty); }
+            set { SetValue(PeakWidthProperty, value); }
         }
+        #endregion
 
         static GraphControl()
         {
-            PeekColorProperty =
-            DependencyProperty.Register("PeekColor", typeof(Brush), typeof(GraphControl),
-                new PropertyMetadata(Brushes.White, new PropertyChangedCallback(PeekColorChanged)), new ValidateValueCallback(ValidatePeekColor));
+            PeakColorProperty =
+            DependencyProperty.Register("PeakColor", typeof(Brush), typeof(GraphControl),
+                new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(PeakColorChanged)), new ValidateValueCallback(ValidatePeakColor));
+            PeakWidthProperty =
+            DependencyProperty.Register("PeakWidth", typeof(double), typeof(GraphControl),
+            new UIPropertyMetadata(0.1, new PropertyChangedCallback(PeakWidthChanged)), new ValidateValueCallback(ValidatePeakWidth));
         }
         
         public GraphControl()
         {
             InitializeComponent();
-            _peekWidth = 1;
-            PeekNum = 0;
+            PeakNum = 0;
         }
 
-
-        public static bool ValidatePeekColor(object color)
+        #region Методы для проверки корректности новых значений для свойств зависимости
+        public static bool ValidatePeakColor(object color)
         {
             if(color is Brush && color !=null)
             {
@@ -81,22 +72,74 @@ namespace GraphTheory
             return false;
         }
 
-        public static void PeekColorChanged(DependencyObject depobj,DependencyPropertyChangedEventArgs args)
+        public static bool ValidatePeakWidth(object width)
         {
-            if(depobj is GraphControl)
+            double value = (double)width;
+            if (value > 0 && value <= 35000)
+            {
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region Методы для изменения значений для свойств зависимости
+        public static void PeakColorChanged(DependencyObject depobj, DependencyPropertyChangedEventArgs args)
+        {
+            if (depobj is GraphControl)
             {
                 GraphControl c = depobj as GraphControl;
                 foreach (var item in (c.Content as Canvas).Children)
                 {
-                    if(item is Ellipse)
+                    if (item is Grid)
                     {
-                        (item as Ellipse).Fill = (Brush)args.NewValue;
+                        ((item as Grid).Children[0] as Ellipse).Fill = (Brush)args.NewValue;
                     }
                 }
             }
         }
+        public static void PeakWidthChanged(DependencyObject depobj, DependencyPropertyChangedEventArgs args)
+        {
+            double value = (double)args.NewValue;
+            Canvas c = (depobj as UserControl).Content as Canvas;
+            foreach (var item in c.Children)
+            {
+                if (item is Grid)
+                {
+                    Ellipse el = ((item as Grid).Children[0] as Ellipse);
+                    DoubleAnimation da = new DoubleAnimation(value, TimeSpan.FromSeconds(0.3));
+                    el.BeginAnimation(Ellipse.WidthProperty, da);
+                    el.BeginAnimation(Ellipse.HeightProperty, da);
+                }
+            }
+        }
+        #endregion
 
-        private void createPeek(object sender, MouseButtonEventArgs e)
+        public void AddNewRelation(Peak firstPeak, Peak secondPeak, TypeOfRelation type, double weight = 0)
+        {
+            Relation rel = new Relation(secondPeak, weight, type);
+            switch (type)
+            {
+                case TypeOfRelation.Oriented:
+                    firstPeak.Relations.Add(rel);
+                    break;
+                case TypeOfRelation.NonOriented:
+                    firstPeak.Relations.Add(rel);
+                    secondPeak.Relations.Add(new Relation(firstPeak, weight, type));
+                    Line l = new Line();
+                    l.X1 = Canvas.GetLeft(firstPeak.El)+PeakWidth/2;
+                    l.Y1= Canvas.GetTop(firstPeak.El)+ PeakWidth / 2;
+                    l.X2= Canvas.GetLeft(secondPeak.El)+ PeakWidth / 2;
+                    l.Y2= Canvas.GetTop(secondPeak.El)+ PeakWidth / 2;
+                    l.Stroke = Brushes.Green;
+                    l.StrokeThickness = 4;
+                    canv.Children.Add(l);
+                    firstSelectedPeak = null;
+                    break;
+            }
+        }
+
+        private void createPeak(object sender, MouseButtonEventArgs e)
         {
             Grid g = new Grid();
             double x = e.GetPosition(canv).X;
@@ -104,10 +147,10 @@ namespace GraphTheory
             Ellipse el = new Ellipse();
             g.Children.Add(el);
             el.Stroke = Brushes.Black;
-            el.Fill = PeekColor ?? Brushes.White;
+            el.Fill = PeakColor ?? Brushes.White;
             ////// Создание надписи в эллипсе /////
             Label l = new Label();
-            l.Content = PeekNum.ToString();
+            l.Content = PeakNum.ToString();
             l.VerticalAlignment = VerticalAlignment.Center;
             l.HorizontalAlignment = HorizontalAlignment.Center;
             g.Children.Add(l);
@@ -121,21 +164,42 @@ namespace GraphTheory
             canv.Children.Add(g);
 
             // Анимация
-            DoubleAnimation da = new DoubleAnimation(0.1,PeekWidth, TimeSpan.FromSeconds(0.3));
-            DoubleAnimation da2 = new DoubleAnimation(x,x - PeekWidth / 2, TimeSpan.FromSeconds(0.3));
-            DoubleAnimation da3 = new DoubleAnimation(y,y - PeekWidth / 2, TimeSpan.FromSeconds(0.3));
+            DoubleAnimation da = new DoubleAnimation(0.1,PeakWidth, TimeSpan.FromSeconds(0.3));
+            DoubleAnimation da2 = new DoubleAnimation(x,x - PeakWidth / 2, TimeSpan.FromSeconds(0.3));
+            DoubleAnimation da3 = new DoubleAnimation(y,y - PeakWidth / 2, TimeSpan.FromSeconds(0.3));
 
             el.BeginAnimation(Ellipse.WidthProperty, da);
             el.BeginAnimation(Ellipse.HeightProperty, da);
             g.BeginAnimation(Canvas.LeftProperty, da2);
             g.BeginAnimation(Canvas.TopProperty, da3);
-            PeekNum++;
+            PeakNum++;
             new Peak(g);
         }
-
+        private void SelectPeakForEdge(object sender, MouseButtonEventArgs e)
+        {
+            if((e.Source as FrameworkElement).Parent is Grid && firstSelectedPeak == null)
+            {
+                firstSelectedPeak = new Peak((e.Source as FrameworkElement).Parent as Grid);
+            }
+            else if((e.Source as FrameworkElement).Parent is Grid)
+            {
+                Peak p = new Peak((e.Source as FrameworkElement).Parent as Grid);
+                AddNewRelation(firstSelectedPeak, p, TypeOfRelation.NonOriented);
+            }
+        }
         private void canv_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
+            switch (CurrentMode)
+            {
+                case mode.AddPeak:
+                    createPeak(sender, e);
+                    break;
+                case mode.AddEdge:
+                    SelectPeakForEdge(sender, e);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
