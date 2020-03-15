@@ -40,7 +40,7 @@ namespace GraphTheory
             set { SetValue(PeakColorProperty, value); }
         }
 
-        public double PeakWidth
+        private double PeakWidth
         {
             get { return (double)GetValue(PeakWidthProperty); }
             set { SetValue(PeakWidthProperty, value); }
@@ -50,8 +50,13 @@ namespace GraphTheory
         static GraphControl()
         {
             PeakColorProperty =
-            DependencyProperty.Register("PeakColor", typeof(Brush), typeof(GraphControl),
-                new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(PeakColorChanged)), new ValidateValueCallback(ValidatePeakColor));
+            DependencyProperty.Register(
+            "PeakColor",
+            typeof(Brush),
+            typeof(GraphControl),
+            new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(PeakColorChanged)),
+            new ValidateValueCallback(ValidatePeakColor));
+
             PeakWidthProperty =
             DependencyProperty.Register("PeakWidth", typeof(double), typeof(GraphControl),
             new UIPropertyMetadata(0.1, new PropertyChangedCallback(PeakWidthChanged)), new ValidateValueCallback(ValidatePeakWidth));
@@ -61,6 +66,7 @@ namespace GraphTheory
         {
             InitializeComponent();
             PeakNum = 0;
+            PeakWidth = 50;
         }
 
         #region Методы для проверки корректности новых значений для свойств зависимости
@@ -119,6 +125,8 @@ namespace GraphTheory
         public void AddNewRelation(Peak firstPeak, Peak secondPeak, TypeOfRelation type, double weight = 0)
         {
             Relation rel = new Relation(secondPeak, weight, type);
+            DoubleAnimation daX = new DoubleAnimation(Canvas.GetLeft(firstPeak.El) + PeakWidth / 2, Canvas.GetLeft(secondPeak.El) + PeakWidth / 2, TimeSpan.FromSeconds(0.3));
+            DoubleAnimation daY = new DoubleAnimation(Canvas.GetTop(firstPeak.El) + PeakWidth / 2, Canvas.GetTop(secondPeak.El) + PeakWidth / 2, TimeSpan.FromSeconds(0.3));
             switch (type)
             {
                 case TypeOfRelation.Oriented:
@@ -126,12 +134,12 @@ namespace GraphTheory
                     ArrowLine ar = new ArrowLine();
                     ar.X1 = Canvas.GetLeft(firstPeak.El) + PeakWidth / 2;
                     ar.Y1 = Canvas.GetTop(firstPeak.El) + PeakWidth / 2;
-                    ar.X2 = Canvas.GetLeft(secondPeak.El) + PeakWidth / 2;
-                    ar.Y2 = Canvas.GetTop(secondPeak.El) + PeakWidth / 2;
                     ar.Stroke = Brushes.Green;
                     ar.StrokeThickness = 4;
                     Canvas.SetZIndex(ar, -1);
                     canv.Children.Add(ar);
+                    ar.BeginAnimation(ArrowLine.X2Property, daX);
+                    ar.BeginAnimation(ArrowLine.Y2Property, daY);
                     break;
                 case TypeOfRelation.NonOriented:
                     firstPeak.Relations.Add(rel);
@@ -139,12 +147,14 @@ namespace GraphTheory
                     Line l = new Line();
                     l.X1 = Canvas.GetLeft(firstPeak.El)+PeakWidth/2;
                     l.Y1= Canvas.GetTop(firstPeak.El)+ PeakWidth / 2;
-                    l.X2= Canvas.GetLeft(secondPeak.El)+ PeakWidth / 2;
-                    l.Y2= Canvas.GetTop(secondPeak.El)+ PeakWidth / 2;
+                    l.X2= Canvas.GetLeft(firstPeak.El) + PeakWidth / 2;
+                    l.Y2= Canvas.GetTop(firstPeak.El) + PeakWidth / 2;
                     l.Stroke = Brushes.Green;
                     l.StrokeThickness = 4;
                     Canvas.SetZIndex(l, -1);
                     canv.Children.Add(l);
+                    l.BeginAnimation(Line.X2Property, daX);
+                    l.BeginAnimation(Line.Y2Property, daY);
                     break;
             }
             SecondSelectedPeak.El.BeginAnimation(OpacityProperty, null);
@@ -176,7 +186,7 @@ namespace GraphTheory
             // Добавление созданных эл-ов на canvas
             canv.Children.Add(g);
             // Для отладки
-            el.Opacity = 0.5;
+            //el.Opacity = 0.5;
             // Анимация
             DoubleAnimation da = new DoubleAnimation(0.1,PeakWidth, TimeSpan.FromSeconds(0.3));
             DoubleAnimation da2 = new DoubleAnimation(x,x - PeakWidth / 2, TimeSpan.FromSeconds(0.3));

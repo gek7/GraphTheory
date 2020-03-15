@@ -3,21 +3,76 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-public class ArrowLine : Shape
+public class ArrowLine :  Shape
 {
+    public static readonly DependencyProperty X1Property;
+    public static readonly DependencyProperty Y1Property;
+    public static readonly DependencyProperty X2Property;
+    public static readonly DependencyProperty Y2Property;
+    #region clr-свойства
     public double X1
     {
         get { return (double)this.GetValue(X1Property); }
         set { this.SetValue(X1Property, value); }
     }
 
-    public static readonly DependencyProperty X1Property = System.Windows.DependencyProperty.Register(
+    public double X2
+    {
+        get { return (double)this.GetValue(X2Property); }
+        set { this.SetValue(X2Property, value); }
+    }
+
+    public double Y1
+    {
+        get { return (double)this.GetValue(Y1Property); }
+        set { this.SetValue(Y1Property, value); }
+    }
+
+    public double Y2
+    {
+        get { return (double)this.GetValue(Y2Property); }
+        set { this.SetValue(Y2Property, value); }
+    }
+    #endregion
+    static ArrowLine()
+    {
+        X1Property =
+        System.Windows.DependencyProperty.Register(
         "X1",
         typeof(double),
         typeof(ArrowLine),
-        new System.Windows.PropertyMetadata(0.0, OnX1PropertyChanged));
+        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnX1PropertyChanged)),
+        new ValidateValueCallback(ValidateDoubleValue)
+        );
 
-    private static void OnX1PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+            X2Property =
+        DependencyProperty.Register(
+        "X2",
+        typeof(double),
+        typeof(ArrowLine),
+        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnX2PropertyChanged)),
+        new ValidateValueCallback(ValidateDoubleValue)
+        );
+
+            Y1Property =
+        DependencyProperty.Register(
+        "Y1",
+        typeof(double),
+        typeof(ArrowLine),
+        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnY1PropertyChanged)),
+        new ValidateValueCallback(ValidateDoubleValue)
+        );
+
+            Y2Property =
+        DependencyProperty.Register(
+        "Y2",
+        typeof(double),
+        typeof(ArrowLine),
+        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnY2PropertyChanged)),
+        new ValidateValueCallback(ValidateDoubleValue)
+        );
+    }
+    private static void OnX1PropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         ArrowLine control = sender as ArrowLine;
 
@@ -27,17 +82,19 @@ public class ArrowLine : Shape
         }
     }
 
-    public double Y1
+    public static bool ValidateDoubleValue(object value)
     {
-        get { return (double)this.GetValue(Y1Property); }
-        set { this.SetValue(Y1Property, value); }
+        if (value is double)
+        {
+            double v = (double)value;
+            if (v >= 0.0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public static readonly DependencyProperty Y1Property = System.Windows.DependencyProperty.Register(
-        "Y1",
-        typeof(double),
-        typeof(ArrowLine),
-        new System.Windows.PropertyMetadata(0.0, OnY1PropertyChanged));
 
     private static void OnY1PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
     {
@@ -49,17 +106,6 @@ public class ArrowLine : Shape
         }
     }
 
-    public double X2
-    {
-        get { return (double)this.GetValue(X2Property); }
-        set { this.SetValue(X2Property, value); }
-    }
-
-    public static readonly DependencyProperty X2Property = System.Windows.DependencyProperty.Register(
-        "X2",
-        typeof(double),
-        typeof(ArrowLine),
-        new System.Windows.PropertyMetadata(0.0, OnX2PropertyChanged));
 
     private static void OnX2PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
     {
@@ -71,17 +117,8 @@ public class ArrowLine : Shape
         }
     }
 
-    public double Y2
-    {
-        get { return (double)this.GetValue(Y2Property); }
-        set { this.SetValue(Y2Property, value); }
-    }
 
-    public static readonly DependencyProperty Y2Property = System.Windows.DependencyProperty.Register(
-        "Y2",
-        typeof(double),
-        typeof(ArrowLine),
-        new System.Windows.PropertyMetadata(0.0, OnY2PropertyChanged));
+ 
 
     private static void OnY2PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
     {
@@ -103,7 +140,6 @@ public class ArrowLine : Shape
 
             // длина отрезка
             double d = Math.Sqrt(Math.Pow(this.X2 - this.X1, 2) + Math.Pow(this.Y2 - this.Y1, 2));
-
             // координаты вектора
             double X = this.X2 - this.X1;
             double Y = this.Y2 - this.Y1;
@@ -112,7 +148,8 @@ public class ArrowLine : Shape
             double X4 = X3 - (X / d) * 10;
             double Y4 = Y3 - (Y / d) * 10;
 
-            // из уравнения прямой { (x - x1)/(x1 - x2) = (y - y1)/(y1 - y2) } получаем вектор перпендикуляра
+            // из уравнения прямой {
+            // (x - x1)/(x1 - x2) = (y - y1)/(y1 - y2) } получаем вектор перпендикуляра
             // (x - x1)/(x1 - x2) = (y - y1)/(y1 - y2) =>
             // (x - x1)*(y1 - y2) = (y - y1)*(x1 - x2) =>
             // (x - x1)*(y1 - y2) - (y - y1)*(x1 - x2) = 0 =>

@@ -10,11 +10,10 @@
         Title="MainWindow" Height="450" Width="800">
     <DockPanel LastChildFill="True">
         <ToolBar DockPanel.Dock="Top">
-            <tlkit:DoubleUpDown Minimum="0.1" Name="fldSize" Value="50"/>
             <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>
             <RadioButton x:Name="addPeak" Content="Peak" Click="addPeak_Click"/>
             <RadioButton x:Name="addEdge" Content="Edge" Click="addPeak_Click"/>
         </ToolBar>
-        <out:GraphControl x:Name="GraphComp" PeakWidth="{Binding Path=Value,ElementName=fldSize}" PeakColor="White"/>
+        <out:GraphControl x:Name="GraphComp"  PeakColor="White"/>
     </DockPanel>
 </Window>
