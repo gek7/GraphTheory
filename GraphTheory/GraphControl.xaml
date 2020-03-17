@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:GraphTheory"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas x:Name="canv" Background="White" MouseLeftButtonDown="canv_MouseLeftButtonDown">
-    </Canvas>
+    <Canvas x:Name="canv" Background="White" MouseLeftButtonDown="Canv_MouseLeftButtonDown" MouseDown="canv_MouseDown"/>
 
 </UserControl>

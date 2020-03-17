@@ -24,8 +24,14 @@ namespace TestApp
         public MainWindow()
         {
             InitializeComponent();
+            GraphComp.SecondPeakSelected += GraphComp_SecondPeakSelected;
         }
 
+        private void GraphComp_SecondPeakSelected(object sender, EventArgs e)
+        {
+            Dlg d = new Dlg(GraphComp);
+            d.ShowDialog();
+        }
 
         private void ClrPick_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
         {
@@ -36,7 +42,7 @@ namespace TestApp
             GraphComp.PeakColor = new SolidColorBrush(ClrPick.SelectedColor ?? c);
         }
 
-        private void addPeak_Click(object sender, RoutedEventArgs e)
+        private void AddPeak_Click(object sender, RoutedEventArgs e)
         {
             if(sender is RadioButton)
             {

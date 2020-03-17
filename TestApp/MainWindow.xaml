@@ -11,8 +11,8 @@
     <DockPanel LastChildFill="True">
         <ToolBar DockPanel.Dock="Top">
             <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>
-            <RadioButton x:Name="addPeak" Content="Peak" Click="addPeak_Click"/>
-            <RadioButton x:Name="addEdge" Content="Edge" Click="addPeak_Click"/>
+            <RadioButton x:Name="addPeak" Content="Peak" Click="AddPeak_Click"/>
+            <RadioButton x:Name="addEdge" Content="Edge" Click="AddPeak_Click"/>
         </ToolBar>
         <out:GraphControl x:Name="GraphComp"  PeakColor="White"/>
     </DockPanel>

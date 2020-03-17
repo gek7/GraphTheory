@@ -48,8 +48,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms.cs" />
     <Compile Include="ArrowLine.cs" />
-    <Compile Include="FontSizeConverter.cs" />
+    <Compile Include="Converters\FontSizeConverter.cs" />
+    <Compile Include="Converters\LeftTextBoxConverter.cs" />
+    <Compile Include="Converters\TopTextBoxConverter.cs" />
     <Compile Include="Relation.cs" />
     <Page Include="GraphControl.xaml">
       <Generator>MSBuild:Compile</Generator>

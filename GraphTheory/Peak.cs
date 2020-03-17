@@ -16,18 +16,24 @@ namespace GraphTheory
 
     public class Peak
     {
-        public Grid El { get; set; }
+        private static List<Peak> AllPeaks = new List<Peak>();
+        public Ellipse El { get; set; }
+        public TextBox Name { get; set; }
         public List<Relation> Relations { get; set; }
 
-        public Peak(Grid el)
+        public Peak(Ellipse el, TextBox name)
         {
             El = el;
+            Name = name;
             Relations = new List<Relation>();
+            AllPeaks.Add(this);
         }
         public void SetName(string name)
         {
-            (El.Children[1] as Label).Content = name;
-
+            Name.Text = name;
         }
+
+        public static Peak FindByEllipse(Ellipse ElForSearch) => AllPeaks.Where(t => t.El == ElForSearch).FirstOrDefault();
+        public static Peak FindByTextBox(TextBox TbForSearch) => AllPeaks.Where(t => t.Name == TbForSearch).FirstOrDefault();
     }
 }
