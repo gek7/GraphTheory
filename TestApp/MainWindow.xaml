@@ -14,6 +14,7 @@
             <RadioButton x:Name="addPeak" Content="Peak" Click="AddPeak_Click"/>
             <RadioButton x:Name="addEdge" Content="Edge" Click="AddPeak_Click"/>
         </ToolBar>
-        <out:GraphControl x:Name="GraphComp"  PeakColor="White"/>
+        <out:GraphControl x:Name="GraphComp"  PeakColor="White" AutoWork="False"/>
+
     </DockPanel>
 </Window>

@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace GraphTheory
 {
     public class Relation
     {
-        double Weight;
-        Peak ConnectedPeak;
-        TypeOfRelation Type;
+        public double Weight;
+        public Peak FromPeak;
+        public Peak ToPeak;
+        public Label Txt;
+        public TypeOfRelation Type;
 
-        public Relation(Peak connectedPeak,double weight,TypeOfRelation type)
+        public Relation(Peak from,Peak to,double weight,TypeOfRelation type,Label txt=null)
         {
-            ConnectedPeak = connectedPeak;
+            FromPeak = from;
+            ToPeak = to;
             Weight = weight;
             Type = type;
+            Txt = txt;
         }
     }
 }

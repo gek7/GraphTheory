@@ -41,8 +41,7 @@ public class ArrowLine :  Shape
         "X1",
         typeof(double),
         typeof(ArrowLine),
-        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnX1PropertyChanged)),
-        new ValidateValueCallback(ValidateDoubleValue)
+        new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure)
         );
 
             X2Property =
@@ -50,8 +49,7 @@ public class ArrowLine :  Shape
         "X2",
         typeof(double),
         typeof(ArrowLine),
-        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnX2PropertyChanged)),
-        new ValidateValueCallback(ValidateDoubleValue)
+        new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure)
         );
 
             Y1Property =
@@ -59,8 +57,7 @@ public class ArrowLine :  Shape
         "Y1",
         typeof(double),
         typeof(ArrowLine),
-        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnY1PropertyChanged)),
-        new ValidateValueCallback(ValidateDoubleValue)
+        new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure)
         );
 
             Y2Property =
@@ -68,66 +65,8 @@ public class ArrowLine :  Shape
         "Y2",
         typeof(double),
         typeof(ArrowLine),
-        new UIPropertyMetadata(0.0, new PropertyChangedCallback(OnY2PropertyChanged)),
-        new ValidateValueCallback(ValidateDoubleValue)
+        new FrameworkPropertyMetadata(0.0,FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure)
         );
-    }
-    private static void OnX1PropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        ArrowLine control = sender as ArrowLine;
-
-        if (control != null)
-        {
-
-        }
-    }
-
-    public static bool ValidateDoubleValue(object value)
-    {
-        if (value is double)
-        {
-            double v = (double)value;
-            if (v >= 0.0)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    private static void OnY1PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
-    {
-        ArrowLine control = sender as ArrowLine;
-
-        if (control != null)
-        {
-
-        }
-    }
-
-
-    private static void OnX2PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
-    {
-        ArrowLine control = sender as ArrowLine;
-
-        if (control != null)
-        {
-
-        }
-    }
-
-
- 
-
-    private static void OnY2PropertyChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
-    {
-        ArrowLine control = sender as ArrowLine;
-
-        if (control != null)
-        {
-
-        }
     }
 
     protected override Geometry DefiningGeometry

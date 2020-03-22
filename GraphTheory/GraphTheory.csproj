@@ -52,8 +52,14 @@
     <Compile Include="ArrowLine.cs" />
     <Compile Include="Converters\FontSizeConverter.cs" />
     <Compile Include="Converters\LeftTextBoxConverter.cs" />
+    <Compile Include="Converters\LineToCenterEllipseConverter.cs" />
     <Compile Include="Converters\TopTextBoxConverter.cs" />
+    <Compile Include="Converters\WeightLeftConverter.cs" />
+    <Compile Include="Converters\WeightTopConverter.cs" />
     <Compile Include="Relation.cs" />
+    <Compile Include="TheoryDlg.xaml.cs">
+      <DependentUpon>TheoryDlg.xaml</DependentUpon>
+    </Compile>
     <Page Include="GraphControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -62,6 +68,10 @@
       <DependentUpon>GraphControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TheoryDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Peak.cs" />
