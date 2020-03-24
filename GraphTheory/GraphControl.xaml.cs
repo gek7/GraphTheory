@@ -20,7 +20,8 @@ namespace GraphTheory
     public enum Mode
     {
         AddPeak,
-        AddEdge
+        AddEdge,
+        DeleteSelected
     }
 
     /// <summary>
@@ -102,7 +103,7 @@ namespace GraphTheory
             set { SetValue(PeakColorProperty, value); }
         }
 
-        private double PeakWidth
+        public double PeakWidth
         {
             get { return (double)GetValue(PeakWidthProperty); }
             set { SetValue(PeakWidthProperty, value); }
@@ -151,7 +152,7 @@ namespace GraphTheory
             Canvas c = ((depobj as UserControl).Content as Grid).Children[0] as Canvas;
             foreach (var item in c.Children)
             {
-                if (item is Grid)
+                if (item is Ellipse)
                 {
                     Ellipse el = item as Ellipse;
                     DoubleAnimation da = new DoubleAnimation(value, TimeSpan.FromSeconds(0.3));
@@ -223,6 +224,7 @@ namespace GraphTheory
                         ar.Y2 = Y1;
                         ar.Stroke = Brushes.Green;
                         ar.StrokeThickness = 4;
+                        rel.LineObj = ar;
                         Canvas.SetZIndex(ar, -1);
 
                         // Анимация по X
@@ -255,10 +257,11 @@ namespace GraphTheory
                         Line l = new Line();
                         l.X1 = X1;
                         l.Y1 = Y1;
-                        l.X2 = X2;
-                        l.Y2 = Y2;
+                        l.X2 = X1;
+                        l.Y2 = Y1;
                         l.Stroke = Brushes.Green;
                         l.StrokeThickness = 4;
+                        rel.LineObj = l;
                         Canvas.SetZIndex(l, -1);
 
                         // Анимация по X
@@ -508,6 +511,37 @@ namespace GraphTheory
             }
         }
 
+        private void DeleteObject(object sender, MouseButtonEventArgs e)
+        {
+            if(e.Source is Ellipse)
+            {
+                Ellipse el = e.Source as Ellipse;
+                Peak p = Peak.FindByEllipse(el);
+                canv.Children.Remove(el);
+                canv.Children.Remove(p.Name);
+                while (p.Relations.Count>0)
+                {
+                    canv.Children.Remove(p.Relations[0].LineObj);
+                    canv.Children.Remove(p.Relations[0].Txt);
+                    p.Relations.RemoveAt(0);
+                }
+                Peak.AllPeaks.Remove(p);
+                if (FirstPeak == p) FirstPeak = null;
+                if (SecondPeak == p) SecondPeak = null;
+            }
+            else if (e.Source is Line || e.Source is ArrowLine)
+            {
+                Relation r = Relation.FindByLine(e.Source as FrameworkElement);
+                canv.Children.Remove(r.LineObj);
+                canv.Children.Remove(r.Txt);
+                Relation.AllRelations.Remove(r);
+                r.FromPeak.Relations.Remove(r);
+                r.ToPeak.Relations.Remove(r);
+
+            }
+        }
+
+
         #region Обработчики событий компонента
         private void canv_MouseLeave(object sender, MouseEventArgs e)
         {
@@ -532,10 +566,14 @@ namespace GraphTheory
                 case Mode.AddEdge:
                     SelectPeakForEdge(sender, e);
                     break;
+                case Mode.DeleteSelected:
+                    DeleteObject(sender, e);
+                    break;
                 default:
                     break;
             }
         }
+
         private void canv_MouseMove(object sender, MouseEventArgs e)
         {
             if (DraggingEllipse != null)
@@ -603,6 +641,10 @@ namespace GraphTheory
         {
             if (CurrentMode != Mode.AddEdge) CurrentMode = Mode.AddEdge;
         }
-        #endregion  
+        private void DelObj_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentMode != Mode.AddEdge) CurrentMode = Mode.DeleteSelected;
+        }
+        #endregion
     }
 }

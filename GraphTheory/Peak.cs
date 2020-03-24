@@ -16,7 +16,7 @@ namespace GraphTheory
 
     public class Peak
     {
-        private static List<Peak> AllPeaks = new List<Peak>();
+        public static List<Peak> AllPeaks = new List<Peak>();
         public Ellipse El { get; set; }
         public TextBox Name { get; set; }
         public List<Relation> Relations { get; set; }

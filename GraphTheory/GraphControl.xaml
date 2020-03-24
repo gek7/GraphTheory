@@ -16,6 +16,7 @@
             <StackPanel Orientation="Vertical">
                 <RadioButton x:Name="addPeak" Content="Peak" IsChecked="True" Click="addPeak_Click"/>
                 <RadioButton x:Name="addEdge" Content="Edge" Click="addEdge_Click"/>
+                <RadioButton x:Name="delObj" Content="Delete" Click="DelObj_Click"/>
             </StackPanel>
         </Expander>
     </Grid>
