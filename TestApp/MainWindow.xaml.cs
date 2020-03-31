@@ -55,6 +55,10 @@ namespace TestApp
                 {
                     GraphComp.CurrentMode = GraphTheory.Mode.AddEdge;
                 }
+                if (r == delObj)
+                {
+                    GraphComp.CurrentMode = GraphTheory.Mode.DeleteSelected;
+                }
             }
         }
     }
