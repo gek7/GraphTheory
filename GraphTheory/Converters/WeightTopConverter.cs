@@ -14,7 +14,7 @@ namespace GraphTheory.Converters
         {
             double Y1 = (double)value;
             double Y2 = (double)parameter;
-            return (Y1 + Y2) / 2 - 35;
+            return (Y1 + Y2) / 2;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

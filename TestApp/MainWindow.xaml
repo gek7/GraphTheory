@@ -7,16 +7,21 @@
         xmlns:tlkit ="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:out="clr-namespace:GraphTheory;assembly=GraphTheory"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <DockPanel LastChildFill="True">
-        <ToolBar DockPanel.Dock="Top">
-            <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>
-            <RadioButton x:Name="addPeak" Content="Peak" Click="AddPeak_Click"/>
-            <RadioButton x:Name="addEdge" Content="Edge" Click="AddPeak_Click"/>
-            <RadioButton x:Name="delObj" Content="Delete" Click="AddPeak_Click"/>
-            <tlkit:DoubleUpDown x:Name="dbl" Minimum="0.1" Value="50" />
-        </ToolBar>
-        <out:GraphControl x:Name="GraphComp"  PeakColor="White" AutoWork="False" PeakWidth="{Binding Path=Value, ElementName=dbl}"/>
-
-    </DockPanel>
+        Title="MainWindow">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1"/>
+        <!--<ToolBarTray>
+            <ToolBar>
+                <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>
+                <RadioButton x:Name="addPeak" Content="Peak" Click="AddPeak_Click"/>
+                <RadioButton x:Name="addEdge" Content="Edge" Click="AddPeak_Click"/>
+                <RadioButton x:Name="delObj" Content="Delete" Click="AddPeak_Click"/>
+                <tlkit:DoubleUpDown x:Name="dbl" Minimum="0.1" Value="50" />
+            </ToolBar>
+        </ToolBarTray>-->
+    </Grid>
 </Window>

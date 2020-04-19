@@ -14,7 +14,7 @@ namespace GraphTheory.Converters
         {
             double d = (double)value;
             double w = (double)parameter;
-            return d + w/2;
+            return d;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

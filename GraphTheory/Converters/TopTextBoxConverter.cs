@@ -13,8 +13,8 @@ namespace GraphTheory.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double d = (double)value;
-            double w = (double)parameter;
-            return d - w/2;
+            double w = ((GraphControl)parameter).PeakWidth;
+            return d-w;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

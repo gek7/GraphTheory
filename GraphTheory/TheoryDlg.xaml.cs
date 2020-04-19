@@ -35,16 +35,23 @@ namespace GraphTheory
             try
             {
                 double w = double.Parse(tb_weight.Text);
-                TypeOfRelation type = TypeOfRelation.NonOriented;
-                if (orient.IsChecked ?? false) type = TypeOfRelation.Oriented;
-                if (norient.IsChecked ?? false) type = TypeOfRelation.NonOriented;
-                if (Gc.AddNewRelation(type, w))
+                if (w >= 0)
                 {
-                    Close();
+                    TypeOfRelation type = TypeOfRelation.NonOriented;
+                    if (orient.IsChecked ?? false) type = TypeOfRelation.Oriented;
+                    if (norient.IsChecked ?? false) type = TypeOfRelation.NonOriented;
+                    if (Gc.AddNewRelation(type, w))
+                    {
+                        Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Вы не выбрали две вершины");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Вы не выбрали две вершины");
+                    MessageBox.Show("Вес должен быть положительным");
                 }
             }
             catch

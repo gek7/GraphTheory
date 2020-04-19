@@ -5,20 +5,114 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GraphTheory"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <Style x:Key="btnColor">
+            <Setter Property="TextElement.Foreground" Value="Black"/>
+        </Style>
+    </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="387*"/>
-        </Grid.ColumnDefinitions>
-        <Canvas x:Name="canv" Background="White" MouseLeftButtonDown="Canv_MouseLeftButtonDown" MouseDown="canv_MouseDown" Grid.ColumnSpan="2"/>
-        <Expander Grid.Column="0" ExpandDirection="Right" Name="exp" Background="White">
-            <StackPanel Orientation="Vertical">
-                <RadioButton x:Name="addPeak" Content="Peak" IsChecked="True" Click="addPeak_Click"/>
-                <RadioButton x:Name="addEdge" Content="Edge" Click="addEdge_Click"/>
-                <RadioButton x:Name="delObj" Content="Delete" Click="DelObj_Click"/>
-            </StackPanel>
-        </Expander>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Canvas x:Name="canv" MouseLeftButtonDown="Canv_MouseLeftButtonDown" MouseDown="canv_MouseDown" Grid.Column="1" Background="White" Grid.Row="1" MouseLeftButtonUp="canv_MouseLeftButtonUp"/>
+        <TabControl  x:Name="exp">
+            <TabItem >
+                <TabItem.Header>
+                    <TextBlock Foreground="Black">Основное</TextBlock>
+                </TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Режим работы" Margin="5">
+                        <StackPanel>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="MoveObj" Content="Перемещение" IsChecked="True" Click="MoveObj_Click" ToolTip="ПКМ"/>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="addPeak" Content="Добавить вершину" IsChecked="True" Click="addPeak_Click"/>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="addEdge" Content="Создать соединение" Click="addEdge_Click"/>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="delObj" Content="Удаление" Click="DelObj_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Margin="5" Header="Дополнительные действия">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="CancelSelectionPeaksBTN" Width="100" Height="40" Margin="5" Click="CancelSelectionPeaksBTN_Click">
+                                <TextBlock Text="Отменить выбор вершин" Background="Transparent" TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
+                            </Button>
+                            <Button x:Name="ClearFieldBTN" Width="100" Height="40" Margin="5" Click="ClearFieldBTN_Click">
+                                <TextBlock Text="Очистить поле" Background="Transparent"  TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Margin="5" Header="Сохранение/Загрузка">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="SaveBTN" Padding="5" Content="Сохранить" Margin="5" Click="SaveBTN_Click"/>
+                            <Button x:Name="LoadBTN" Padding="5" Content="Загрузить" Margin="5" Click="LoadBTN_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+
+
+                    <GroupBox Header="Алгоритмы" Margin="5">
+                        <StackPanel VerticalAlignment="Center">
+                            <Button Click="Button_Click" Margin="5"  Width="150">
+                                <TextBlock TextWrapping="WrapWithOverflow" Text="Поиск макс. пропускной способности" TextAlignment="Center" Background="Transparent"/>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Foreground="Black">Визуальные настройки</TextBlock>
+                </TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Вершина" Margin="5">
+                        <StackPanel>
+                            <StackPanel  Orientation="Horizontal">
+                                <StackPanel>
+                                    <TextBlock Text="Цвет вершины" Margin="5" Height="20" x:Name="tbPeakColor"/>
+                                    <TextBlock Text="Цвет текста вершины" Margin="5" Height="20"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <local:SimpleColorPicker x:Name="clrPeak" Width="50" Height="20" Margin="5" ColorChanged="clrPeak_ColorChanged" ColorEnter="clrPeak_ColorEnter" ColorLeave="clrPeak_ColorLeave"/>
+                                    <local:SimpleColorPicker x:Name="clrTextPeak" Width="50" Height="20" Margin="5" ColorChanged="clrTextPeak_ColorChanged" ColorEnter="clrTextPeak_ColorEnter" ColorLeave="clrTextPeak_ColorLeave"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Связь" Margin="5">
+                        <StackPanel>
+                            <StackPanel  Orientation="Horizontal">
+                                <StackPanel>
+                                    <TextBlock Text="Цвет связи" Margin="5" Height="20" />
+                                    <TextBlock Text="Цвет текста" Margin="5" Height="20"/>
+                                    <TextBlock Text="Цвет фона у текста" Margin="5" Height="20"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <local:SimpleColorPicker x:Name="clrRelation" Width="50" Height="20" Margin="5" ColorChanged="clrRelation_ColorChanged" ColorEnter="clrRelation_ColorEnter" ColorLeave="clrRelation_ColorLeave"/>
+                                    <local:SimpleColorPicker x:Name="clrTextRelation" Width="50" Height="20" Margin="5" ColorChanged="clrTextRelation_ColorChanged" ColorEnter="clrTextRelation_ColorEnter" ColorLeave="clrTextRelation_ColorLeave"/>
+                                    <local:SimpleColorPicker x:Name="clrBackgroundTextRelation" Width="50" Height="20" Margin="5" ColorChanged="clrBackgroundTextRelation_ColorChanged" ColorEnter="clrBackgroundTextRelation_ColorEnter" ColorLeave="clrBackgroundTextRelation_ColorLeave"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Интерфейс" Margin="5">
+                        <StackPanel>
+                            <StackPanel  Orientation="Horizontal">
+                                <StackPanel>
+                                    <TextBlock Text="Цвет основного поля" Margin="5" Height="20"/>
+                                    <TextBlock Text="Цвет фона упр-ей части" Margin="5" Height="20"/>
+                                    <TextBlock Text="Цвет текста упр-ей части" Margin="5" Height="20"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <local:SimpleColorPicker x:Name="clrField" Width="50" Height="20" Margin="5" ColorChanged="clrField_ColorChanged" ColorEnter="clrField_ColorEnter" ColorLeave="clrField_ColorLeave"/>
+                                    <local:SimpleColorPicker x:Name="clrManagePart" Width="50" Height="20" Margin="5" ColorChanged="clrManagePart_ColorChanged" ColorEnter="clrManagePart_ColorEnter" ColorLeave="clrManagePart_ColorLeave"/>
+                                    <local:SimpleColorPicker x:Name="clrTextManagePart" Width="50" Height="20" Margin="5" ColorChanged="clrTextManagePart_ColorChanged" ColorEnter="clrTextManagePart_ColorEnter" ColorLeave="clrTextManagePart_ColorLeave"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 
 </UserControl>

@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="GraphTheory.SimpleColorPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GraphTheory"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ComboBox x:Name="cmb">
+        <ComboBoxItem Name="FirstTab">
+            <Rectangle x:Name="curColor" Width="50" Height="20"/>
+        </ComboBoxItem>
+        <ComboBoxItem Name="cbi" Width="210">
+            <WrapPanel Name="wp">
+                
+            </WrapPanel>
+        </ComboBoxItem>
+    </ComboBox>
+</UserControl>

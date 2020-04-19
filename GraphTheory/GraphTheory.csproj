@@ -34,6 +34,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -48,15 +50,16 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms.cs" />
-    <Compile Include="ArrowLine.cs" />
+    <Compile Include="Arrow.cs" />
     <Compile Include="Converters\FontSizeConverter.cs" />
     <Compile Include="Converters\LeftTextBoxConverter.cs" />
     <Compile Include="Converters\LineToCenterEllipseConverter.cs" />
     <Compile Include="Converters\TopTextBoxConverter.cs" />
     <Compile Include="Converters\WeightLeftConverter.cs" />
     <Compile Include="Converters\WeightTopConverter.cs" />
-    <Compile Include="Relation.cs" />
+    <Compile Include="SimpleColorPicker.xaml.cs">
+      <DependentUpon>SimpleColorPicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TheoryDlg.xaml.cs">
       <DependentUpon>TheoryDlg.xaml</DependentUpon>
     </Compile>
@@ -68,13 +71,16 @@
       <DependentUpon>GraphControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SimpleColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TheoryDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Peak.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,5 +103,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
