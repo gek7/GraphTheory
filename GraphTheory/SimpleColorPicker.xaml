@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GraphTheory"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <ComboBox x:Name="cmb">
+    <ComboBox x:Name="cmb" DropDownOpened="cmb_DropDownOpened" >
         <ComboBoxItem Name="FirstTab">
             <Rectangle x:Name="curColor" Width="50" Height="20"/>
         </ComboBoxItem>

@@ -340,7 +340,8 @@ namespace GraphTheory
            "Background",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(BackgroundChanged)),
+           new UIPropertyMetadata(Brushes.White, 
+           new PropertyChangedCallback(BackgroundChanged)),
            new ValidateValueCallback(ValidateColor));
 
             RelationColorProperty =
@@ -502,13 +503,14 @@ namespace GraphTheory
 
         #endregion
 
-        public Peak FirstPeak { get; set; }
-        public Peak SecondPeak { get; set; }
+        private Peak FirstPeak;
+        private Peak SecondPeak;
         private TextBox EditingTextBox;
         private Ellipse DraggingEllipse = null;
-        private int PeakNum { get; set; }
+        public int PeakNum { get; private set; }
         public Mode CurrentMode { get; set; }
         private Mode PreviousMode;
+        // Сейчас работает алгоритм?
         private bool isFindingMaxFlow = false;
         // Переменные, которые хранят вершины и анимированную между ними грань
         private Peak ConnectingFirstPeak;
@@ -682,7 +684,7 @@ namespace GraphTheory
                         canv.Children.Add(l);
                         break;
                 }
-                if (weight > 0)
+                if (weight >= 0)
                 {
                     TextBox tb = new TextBox();
                     tb.IsReadOnly = true;
@@ -850,14 +852,15 @@ namespace GraphTheory
             FirstPeak = null;
             SecondPeak = null;
             EditingTextBox = null;
+            PeakNum = 0;
         }
 
         // Удаления объектов
-        private void DeleteObject(object sender, MouseButtonEventArgs e)
+        private void DeleteObject(object src)
         {
-            if (e.Source is Ellipse)
+            if (src is Ellipse)
             {
-                Ellipse el = e.Source as Ellipse;
+                Ellipse el = src as Ellipse;
                 Peak p = Peak.FindByEllipse(el);
                 canv.Children.Remove(el);
                 canv.Children.Remove(p.tb);
@@ -872,9 +875,9 @@ namespace GraphTheory
                 if (FirstPeak == p) FirstPeak = null;
                 if (SecondPeak == p) SecondPeak = null;
             }
-            else if (e.Source is Line || e.Source is Arrow)
+            else if (src is Line || src is Arrow)
             {
-                Relation r = Relation.FindByLine(e.Source as FrameworkElement);
+                Relation r = Relation.FindByLine(src as FrameworkElement);
                 canv.Children.Remove(r.LineObj);
                 canv.Children.Remove(r.Txt);
                 Relation.AllRelations.Remove(r);
@@ -890,7 +893,6 @@ namespace GraphTheory
         {
             DraggingEllipse = null;
         }
-
         private void Canv_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             switch (CurrentMode)
@@ -903,7 +905,7 @@ namespace GraphTheory
                     SelectPeak(sender, e);
                     break;
                 case Mode.DeleteSelected:
-                    DeleteObject(sender, e);
+                    DeleteObject(e.Source);
                     break;
                 case Mode.SelectForAlghorithm:
                     SelectPeak(sender, e);
@@ -1170,6 +1172,7 @@ namespace GraphTheory
             List<List<Relation>> AllWays = new List<List<Relation>>();
             // Насыщенные грани
             List<Relation> SaturatedRelations = new List<Relation>();
+            //Вес граней во время работы алгоритма
             List<double> RealRelationsWeight = new List<double>();
             RealRelationsWeight = Relation.AllRelations.Select(t => t.Weight).ToList();
 
@@ -1197,9 +1200,8 @@ namespace GraphTheory
             List<Relation> FindWay(ref Peak src, ref Peak dst)
             {
                 bool isEnded = false;
+                //Путь по которому 'прошёл' алгоритм
                 List<Relation> CurWay = new List<Relation>();
-                //List<Peak> CheckedPeaks = new List<Peak>();
-
                 //соединения, которые не ведут к стоку
                 List<Relation> CheckedRelations = new List<Relation>();
                 Peak CheckingPeak = src;
@@ -1245,7 +1247,7 @@ namespace GraphTheory
         #region классы Peak/Relation
         public class Peak
         {
-            public static List<Peak> AllPeaks = new List<Peak>();
+            public static List<Peak> AllPeaks { get; private set; } = new List<Peak>();
 
             public Ellipse El { get; set; }
             public TextBox tb { get; set; }
@@ -1281,7 +1283,7 @@ namespace GraphTheory
         }
         public class Relation
         {
-            public static List<Relation> AllRelations = new List<Relation>();
+            public static List<Relation> AllRelations { get; private set; } = new List<Relation>() {  };
             public double Weight { get; set; }
             public Peak FromPeak { get; set; }
             public Peak ToPeak { get; set; }

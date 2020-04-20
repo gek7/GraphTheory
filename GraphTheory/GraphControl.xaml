@@ -25,8 +25,8 @@
                 <StackPanel Orientation="Horizontal">
                     <GroupBox Header="Режим работы" Margin="5">
                         <StackPanel>
-                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="MoveObj" Content="Перемещение" IsChecked="True" Click="MoveObj_Click" ToolTip="ПКМ"/>
-                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="addPeak" Content="Добавить вершину" IsChecked="True" Click="addPeak_Click"/>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="MoveObj" Content="Перемещение"  Click="MoveObj_Click"/>
+                            <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="addPeak" Content="Добавить вершину"  Click="addPeak_Click"/>
                             <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="addEdge" Content="Создать соединение" Click="addEdge_Click"/>
                             <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="delObj" Content="Удаление" Click="DelObj_Click"/>
                         </StackPanel>

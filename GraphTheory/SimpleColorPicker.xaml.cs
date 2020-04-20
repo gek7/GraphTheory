@@ -50,6 +50,7 @@ namespace GraphTheory
                 {
                     curColor.Fill = value;
                     _selectedColor = value;
+                    cmb.SelectedItem = FirstTab;
                 }
             }
         }
@@ -94,12 +95,18 @@ namespace GraphTheory
         private void Btn_Click(object sender, RoutedEventArgs e)
         {
             Button btn = e.OriginalSource as Button;
-            cmb.SelectedItem = FirstTab;
             Brush NewColor = (btn.Content as Rectangle).Fill as Brush;
             OnColorChanged(new ColorArgs(NewColor, selectedColor));
             selectedColor = NewColor;
             cbi.BringIntoView();
             cmb.IsDropDownOpen = false;
+            cmb.SelectedIndex = 0;
+        }
+
+        private void cmb_DropDownOpened(object sender, EventArgs e)
+        {
+            
+            cbi.BringIntoView();
         }
     }
     public class ColorArgs : EventArgs
