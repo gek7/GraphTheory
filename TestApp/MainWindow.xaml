@@ -13,7 +13,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1"/>
+        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1" Margin="0,0,10,0" />
         <!--<ToolBarTray>
             <ToolBar>
                 <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>
@@ -21,7 +21,8 @@
                 <RadioButton x:Name="addEdge" Content="Edge" Click="AddPeak_Click"/>
                 <RadioButton x:Name="delObj" Content="Delete" Click="AddPeak_Click"/>
                 <tlkit:DoubleUpDown x:Name="dbl" Minimum="0.1" Value="50" />
+                <tlkit:DoubleUpDown x:Name="dbl2" Minimum="0.1" Value="50" />
             </ToolBar>
-        </ToolBarTray>-->
+        </ToolBarTray>!-->
     </Grid>
 </Window>

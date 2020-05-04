@@ -27,6 +27,7 @@ namespace TestApp
         {
             InitializeComponent();
             this.WindowState = System.Windows.WindowState.Maximized;
+            GraphComp.PeakForeground = null;
             //GraphComp.SecondPeakSelected += GraphComp_SecondPeakSelected;
         }
 

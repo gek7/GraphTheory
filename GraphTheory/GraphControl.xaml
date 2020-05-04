@@ -20,9 +20,9 @@
         <TabControl  x:Name="exp">
             <TabItem >
                 <TabItem.Header>
-                    <TextBlock Foreground="Black">Основное</TextBlock>
+                    <TextBlock Foreground="Black">Страница управления компонентом</TextBlock>
                 </TabItem.Header>
-                <StackPanel Orientation="Horizontal">
+                <WrapPanel Orientation="Horizontal">
                     <GroupBox Header="Режим работы" Margin="5">
                         <StackPanel>
                             <RadioButton Foreground="{Binding ElementName=tbPeakColor,Path=Foreground}" x:Name="MoveObj" Content="Перемещение"  Click="MoveObj_Click"/>
@@ -57,13 +57,13 @@
                             </Button>
                         </StackPanel>
                     </GroupBox>
-                </StackPanel>
+                </WrapPanel>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <TextBlock Foreground="Black">Визуальные настройки</TextBlock>
                 </TabItem.Header>
-                <StackPanel Orientation="Horizontal">
+                <WrapPanel Orientation="Horizontal">
                     <GroupBox Header="Вершина" Margin="5">
                         <StackPanel>
                             <StackPanel  Orientation="Horizontal">
@@ -110,7 +110,7 @@
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
-                </StackPanel>
+                </WrapPanel>
             </TabItem>
         </TabControl>
     </Grid>

@@ -108,6 +108,7 @@ namespace GraphTheory
 
         public static readonly DependencyProperty PeakColorProperty;
         public static readonly DependencyProperty PeakWidthProperty;
+        public static readonly DependencyProperty RelationWidthProperty;
         public new static readonly DependencyProperty BackgroundProperty;
         public static readonly DependencyProperty RelationColorProperty;
         public static readonly DependencyProperty WeightForegroundProperty;
@@ -120,74 +121,92 @@ namespace GraphTheory
         public Brush PeakColor
         {
             get { return (Brush)GetValue(PeakColorProperty); }
-            set { SetValue(PeakColorProperty, value); }
+            set
+            {
+                SetValue(PeakColorProperty, value);
+            }
         }
 
         public double PeakWidth
         {
             get { return (double)GetValue(PeakWidthProperty); }
-            set { SetValue(PeakWidthProperty, value); }
+            set 
+            {
+                SetValue(PeakWidthProperty, value); 
+            }
+        }
+        public double RelationWidth
+        {
+            get { return (double)GetValue(RelationWidthProperty); }
+            set
+            {
+                SetValue(RelationWidthProperty, value);
+            }
         }
         public new Brush Background
         {
             get { return (Brush)GetValue(BackgroundProperty); }
-            set { SetValue(BackgroundProperty, value); }
+            set 
+            {
+                SetValue(BackgroundProperty, value); 
+            }
         }
 
         public Brush RelationColor
         {
             get { return (Brush)GetValue(RelationColorProperty); }
-            set { SetValue(RelationColorProperty, value); }
+            set 
+            {
+                SetValue(RelationColorProperty, value); 
+            }
         }
 
         public Brush WeightForeground
         {
             get { return (Brush)GetValue(WeightForegroundProperty); }
-            set { SetValue(WeightForegroundProperty, value); }
+            set 
+            {
+                SetValue(WeightForegroundProperty, value); 
+            }
         }
 
         public Brush PeakForeground
         {
             get { return (Brush)GetValue(PeakForegroundProperty); }
-            set { SetValue(PeakForegroundProperty, value); }
+            set 
+            {
+                SetValue(PeakForegroundProperty, value); 
+            }
         }
 
         public Brush WeightBackground
         {
             get { return (Brush)GetValue(WeightBackgroundProperty); }
-            set { SetValue(WeightBackgroundProperty, value); }
+            set 
+            {
+                SetValue(WeightBackgroundProperty, value); 
+            }
         }
         private Brush ManagePartBackground
         {
             get { return (Brush)GetValue(ManagePartBackgroundProperty); }
-            set { SetValue(ManagePartBackgroundProperty, value); }
+            set 
+            {
+                SetValue(ManagePartBackgroundProperty, value); 
+            }
         }
 
         private Brush ManagePartTextColor
         {
             get { return (Brush)GetValue(ManagePartTextColorProperty); }
-            set { SetValue(ManagePartTextColorProperty, value); }
-        }
-        #endregion
-
-        #region Методы для проверки корректности новых значений для свойств зависимости
-        public static bool ValidateColor(object color)
-        {
-            if (color is Brush && color != null)
+            set 
             {
-                return true;
+                if (!(value is Brush))
+                {
+                    value = Brushes.Black;
+                }
+                SetValue(ManagePartTextColorProperty, value); 
             }
-            return false;
-        }
-
-        public static bool ValidatePeakWidth(object width)
-        {
-            double value = (double)width;
-            if (value > 0 && value <= 35000)
-            {
-                return true;
-            }
-            return false;
         }
         #endregion
 
@@ -233,6 +252,26 @@ namespace GraphTheory
                     el.BeginAnimation(Ellipse.HeightProperty, da);
                     tb.SetBinding(Canvas.LeftProperty, LeftBind.ParentBindingBase);
                     tb.SetBinding(Canvas.TopProperty, TopBind.ParentBindingBase);
+                }
+            }
+        }
+
+        public static void RelationWidthChanged(DependencyObject depobj, DependencyPropertyChangedEventArgs args)
+        {
+            double value = (double)args.NewValue;
+            UserControl uc = (depobj as UserControl);
+            GraphControl gp = uc as GraphControl;
+            //Canvas c = ((uc.Content as Grid).Children[0] as ScrollViewer).Content as Canvas;
+            Canvas c = (uc.Content as Grid).Children[0] as Canvas;
+            foreach (var item in GraphControl.Relation.AllRelations)
+            {
+                if(item.LineObj is Line)
+                {
+                    (item.LineObj as Line).StrokeThickness = value;
+                }
+                else if (item.LineObj is Arrow)
+                {
+                    (item.LineObj as Arrow).StrokeThickness = value;
                 }
             }
         }
@@ -321,6 +360,31 @@ namespace GraphTheory
         }
         #endregion
 
+        #region Методы для исправления неправильных значений для свойств зависимости
+        public static object CoerceColor(DependencyObject depObj,object color)
+        {
+            if (!(color is Brush) || color == null)
+            {
+                return Brushes.Black;
+            }
+            return color;
+        }
+
+        public static object CoerceWidth(DependencyObject depObj, object width)
+        {
+            double value = (double)width;
+            if (value <= 0)
+            {
+                return (double)1;
+            }
+            if (value > 35000)
+            {
+                return (double)35000;
+            }
+            return value;
+        }
+        #endregion
+
         static GraphControl()
         {
             PeakColorProperty =
@@ -328,12 +392,15 @@ namespace GraphTheory
             "PeakColor",
             typeof(Brush),
             typeof(GraphControl),
-            new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(PeakColorChanged)),
-            new ValidateValueCallback(ValidateColor));
+            new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(PeakColorChanged), new CoerceValueCallback(CoerceColor)));
 
             PeakWidthProperty =
             DependencyProperty.Register("PeakWidth", typeof(double), typeof(GraphControl),
-            new UIPropertyMetadata(0.1, new PropertyChangedCallback(PeakWidthChanged)), new ValidateValueCallback(ValidatePeakWidth));
+            new UIPropertyMetadata((double)10, new PropertyChangedCallback(PeakWidthChanged),new CoerceValueCallback(CoerceWidth)));
+
+            RelationWidthProperty =
+            DependencyProperty.Register("RelationWidth", typeof(double), typeof(GraphControl),
+            new UIPropertyMetadata((double)3, new PropertyChangedCallback(RelationWidthChanged), new CoerceValueCallback(CoerceWidth)));
 
             BackgroundProperty =
            DependencyProperty.Register(
@@ -341,55 +408,48 @@ namespace GraphTheory
            typeof(Brush),
            typeof(GraphControl),
            new UIPropertyMetadata(Brushes.White, 
-           new PropertyChangedCallback(BackgroundChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new PropertyChangedCallback(BackgroundChanged), new CoerceValueCallback(CoerceColor)));
 
             RelationColorProperty =
            DependencyProperty.Register(
            "RelationColor",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.Green, new PropertyChangedCallback(RelationColorChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.Green, new PropertyChangedCallback(RelationColorChanged), new CoerceValueCallback(CoerceColor)));
 
             WeightForegroundProperty =
            DependencyProperty.Register(
            "WeightForeground",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(WeightForegroundChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(WeightForegroundChanged), new CoerceValueCallback(CoerceColor)));
 
             PeakForegroundProperty =
            DependencyProperty.Register(
            "PeakForeground",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(PeakForegroundChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(PeakForegroundChanged), new CoerceValueCallback(CoerceColor)));
 
             WeightBackgroundProperty =
            DependencyProperty.Register(
            "WeightBackground",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(WeightBackgroundChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(WeightBackgroundChanged), new CoerceValueCallback(CoerceColor)));
 
             ManagePartBackgroundProperty =
            DependencyProperty.Register(
            "ManagePartBackground",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(ManagePartBackgroundChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.White, new PropertyChangedCallback(ManagePartBackgroundChanged), new CoerceValueCallback(CoerceColor)));
             ManagePartTextColorProperty =
            DependencyProperty.Register(
            "ManagePartTextColor",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(ManagePartTextColorChanged)),
-           new ValidateValueCallback(ValidateColor));
+           new UIPropertyMetadata(Brushes.Black, new PropertyChangedCallback(ManagePartTextColorChanged), new CoerceValueCallback(CoerceColor)));
         }
 
         #endregion
