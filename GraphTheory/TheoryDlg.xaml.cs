@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static GraphTheory.GraphControl;
 
 namespace GraphTheory
 {
@@ -20,14 +21,18 @@ namespace GraphTheory
     public partial class TheoryDlg : Window
     {
         GraphControl Gc;
+        Peak FirstPeak;
+        Peak SecondPeak;
         public TheoryDlg()
         {
             InitializeComponent();
         }
 
-        public TheoryDlg(GraphControl gc) : this()
+        public TheoryDlg(GraphControl gc,Peak firstSelPeak, Peak secondSelPeak) : this()
         {
             Gc = gc;
+            FirstPeak = firstSelPeak;
+            SecondPeak = secondSelPeak;
         }
 
         private void btn_ok_Click(object sender, RoutedEventArgs e)
@@ -40,7 +45,7 @@ namespace GraphTheory
                     TypeOfRelation type = TypeOfRelation.NonOriented;
                     if (orient.IsChecked ?? false) type = TypeOfRelation.Oriented;
                     if (norient.IsChecked ?? false) type = TypeOfRelation.NonOriented;
-                    if (Gc.AddNewRelation(type, w))
+                    if (Gc.AddNewRelation(FirstPeak,SecondPeak,type, w))
                     {
                         Close();
                     }

@@ -10,10 +10,11 @@
         Title="MainWindow">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1" Margin="0,0,10,0" />
+        <out:GraphControl x:Name="GraphComp2" AutoWork="True" Grid.Row="0" />
+        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1"  />
         <!--<ToolBarTray>
             <ToolBar>
                 <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>

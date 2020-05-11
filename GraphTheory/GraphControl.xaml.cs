@@ -42,38 +42,86 @@ namespace GraphTheory
     /// </summary>
     public partial class GraphControl : UserControl
     {
+        #region Аргументы для событий и новые "Держатели" для методов событий
+        // PeakArgs хранит только одну вершину
+        public delegate void PeakHandler(object sender, PeakArgs e);
+        public class PeakArgs : EventArgs
+        {
+            public Peak Peak { get; set; }
+            public PeakArgs(Peak peak)
+            {
+                Peak = peak;
+            }
+        }
+
+        //NewPeakArgs хранит новую выбраную вершину и ту, что была до неё.
+        public delegate void NewPeakHandler(object sender, NewPeakArgs e);
+        public class NewPeakArgs : EventArgs
+        {
+            public Peak NewSelectingPeak { get; set; }
+            public Peak OldSelectedPeak { get; set; }
+            public NewPeakArgs(Peak oldPeak, Peak newPeak)
+            {
+                NewSelectingPeak = newPeak;
+                OldSelectedPeak = oldPeak;
+            }
+        }
+
+        public delegate void RelationHandler(object sender, RelationArgs e);
+        public class RelationArgs : EventArgs
+        {
+            public Relation NewRelation { get; set; }
+            public RelationArgs(Relation lineObj)
+            {
+                NewRelation = lineObj;
+            }
+        }
+        #endregion
+
         #region События для прикладного программиста
-        public event EventHandler FirstPeakSelected;
-        public event EventHandler SecondPeakSelected;
-        public event EventHandler NewFirstPeakSelected;
-        public event EventHandler EdgeCreated;
-        public event EventHandler PeakCreated;
+        public event PeakHandler FirstPeakSelected;
+        public event PeakHandler SecondPeakSelected;
+        public event NewPeakHandler NewFirstPeakSelected;
+        public event RelationHandler RelationCreated;
+        public event PeakHandler PeakCreated;
+        public event PeakHandler PeakDeleted;
+        public event RelationHandler RelationDeleted;
         #endregion
 
         #region Методы для вызова обработчиков событий указанных прикладным программистом
-        protected virtual void OnFirstPeakSelected(EventArgs e)
+        protected virtual void OnFirstPeakSelected(PeakArgs e)
         {
-            EventHandler handler = FirstPeakSelected;
+            PeakHandler handler = FirstPeakSelected;
             handler?.Invoke(this, e);
         }
-        protected virtual void OnSecondPeakSelected(EventArgs e)
+        protected virtual void OnSecondPeakSelected(PeakArgs e)
         {
-            EventHandler handler = SecondPeakSelected;
+            PeakHandler handler = SecondPeakSelected;
             handler?.Invoke(this, e);
         }
-        protected virtual void OnNewFirstPeakSelected(EventArgs e)
+        protected virtual void OnNewFirstPeakSelected(NewPeakArgs e)
         {
-            EventHandler handler = NewFirstPeakSelected;
+            NewPeakHandler handler = NewFirstPeakSelected;
             handler?.Invoke(this, e);
         }
-        protected virtual void OnEdgeCreated(EventArgs e)
+        protected virtual void OnEdgeCreated(RelationArgs e)
         {
-            EventHandler handler = EdgeCreated;
+            RelationHandler handler = RelationCreated;
             handler?.Invoke(this, e);
         }
-        protected virtual void OnPeakCreated(EventArgs e)
+        protected virtual void OnPeakCreated(PeakArgs e)
         {
-            EventHandler handler = PeakCreated;
+            PeakHandler handler = PeakCreated;
+            handler?.Invoke(this, e);
+        }
+        protected virtual void OnPeakDeleted(PeakArgs e)
+        {
+            PeakHandler handler = PeakDeleted;
+            handler?.Invoke(this, e);
+        }
+        protected virtual void OnRelationDeleted(RelationArgs e)
+        {
+            RelationHandler handler = RelationDeleted;
             handler?.Invoke(this, e);
         }
         #endregion
@@ -130,9 +178,9 @@ namespace GraphTheory
         public double PeakWidth
         {
             get { return (double)GetValue(PeakWidthProperty); }
-            set 
+            set
             {
-                SetValue(PeakWidthProperty, value); 
+                SetValue(PeakWidthProperty, value);
             }
         }
         public double RelationWidth
@@ -146,66 +194,66 @@ namespace GraphTheory
         public new Brush Background
         {
             get { return (Brush)GetValue(BackgroundProperty); }
-            set 
+            set
             {
-                SetValue(BackgroundProperty, value); 
+                SetValue(BackgroundProperty, value);
             }
         }
 
         public Brush RelationColor
         {
             get { return (Brush)GetValue(RelationColorProperty); }
-            set 
+            set
             {
-                SetValue(RelationColorProperty, value); 
+                SetValue(RelationColorProperty, value);
             }
         }
 
         public Brush WeightForeground
         {
             get { return (Brush)GetValue(WeightForegroundProperty); }
-            set 
+            set
             {
-                SetValue(WeightForegroundProperty, value); 
+                SetValue(WeightForegroundProperty, value);
             }
         }
 
         public Brush PeakForeground
         {
             get { return (Brush)GetValue(PeakForegroundProperty); }
-            set 
+            set
             {
-                SetValue(PeakForegroundProperty, value); 
+                SetValue(PeakForegroundProperty, value);
             }
         }
 
         public Brush WeightBackground
         {
             get { return (Brush)GetValue(WeightBackgroundProperty); }
-            set 
+            set
             {
-                SetValue(WeightBackgroundProperty, value); 
+                SetValue(WeightBackgroundProperty, value);
             }
         }
         private Brush ManagePartBackground
         {
             get { return (Brush)GetValue(ManagePartBackgroundProperty); }
-            set 
+            set
             {
-                SetValue(ManagePartBackgroundProperty, value); 
+                SetValue(ManagePartBackgroundProperty, value);
             }
         }
 
         private Brush ManagePartTextColor
         {
             get { return (Brush)GetValue(ManagePartTextColorProperty); }
-            set 
+            set
             {
                 if (!(value is Brush))
                 {
                     value = Brushes.Black;
                 }
-                SetValue(ManagePartTextColorProperty, value); 
+                SetValue(ManagePartTextColorProperty, value);
             }
         }
         #endregion
@@ -229,16 +277,15 @@ namespace GraphTheory
         public static void PeakWidthChanged(DependencyObject depobj, DependencyPropertyChangedEventArgs args)
         {
             double value = (double)args.NewValue;
-            UserControl uc = (depobj as UserControl);
-            GraphControl gp = uc as GraphControl;
+            GraphControl gp = (depobj as GraphControl);
             //Canvas c = ((uc.Content as Grid).Children[0] as ScrollViewer).Content as Canvas;
-            Canvas c = (uc.Content as Grid).Children[0] as Canvas;
+            Canvas c = (gp.Content as Grid).Children[0] as Canvas;
             foreach (var item in c.Children)
             {
                 if (item is Ellipse)
                 {
                     Ellipse el = item as Ellipse;
-                    TextBox tb = Peak.FindByEllipse(el).tb;
+                    TextBox tb = gp.FindPeakByEllipse(el).Tb;
                     // Сохранение привязок до изменения значений вручную
                     BindingExpression LeftBind = tb.GetBindingExpression(Canvas.LeftProperty);
                     BindingExpression TopBind = tb.GetBindingExpression(Canvas.TopProperty);
@@ -263,9 +310,9 @@ namespace GraphTheory
             GraphControl gp = uc as GraphControl;
             //Canvas c = ((uc.Content as Grid).Children[0] as ScrollViewer).Content as Canvas;
             Canvas c = (uc.Content as Grid).Children[0] as Canvas;
-            foreach (var item in GraphControl.Relation.AllRelations)
+            foreach (var item in gp.AllRelations)
             {
-                if(item.LineObj is Line)
+                if (item.LineObj is Line)
                 {
                     (item.LineObj as Line).StrokeThickness = value;
                 }
@@ -290,9 +337,10 @@ namespace GraphTheory
 
         public static void RelationColorChanged(DependencyObject depobj, DependencyPropertyChangedEventArgs args)
         {
+            GraphControl gp = depobj as GraphControl;
             if (args.NewValue != args.OldValue)
             {
-                Relation.AllRelations.ForEach(t => (t.LineObj as Shape).Stroke = (args.NewValue as Brush));
+                gp.AllRelations.ForEach(t => (t.LineObj as Shape).Stroke = (args.NewValue as Brush));
             }
         }
 
@@ -300,10 +348,10 @@ namespace GraphTheory
         {
             if (depobj is GraphControl)
             {
-                GraphControl c = depobj as GraphControl;
+                GraphControl gp = depobj as GraphControl;
                 if (args.NewValue != args.OldValue)
                 {
-                    GraphControl.Relation.AllRelations.ForEach(t => t.Txt.Foreground = args.NewValue as Brush);
+                    gp.AllRelations.ForEach(t => t.Txt.Foreground = args.NewValue as Brush);
                 }
             }
         }
@@ -312,10 +360,10 @@ namespace GraphTheory
         {
             if (depobj is GraphControl)
             {
-                GraphControl c = depobj as GraphControl;
+                GraphControl gp = depobj as GraphControl;
                 if (args.NewValue != args.OldValue)
                 {
-                    GraphControl.Peak.AllPeaks.ForEach(t => t.tb.Foreground = args.NewValue as Brush);
+                    gp.AllPeaks.ForEach(t => t.Tb.Foreground = args.NewValue as Brush);
                 }
             }
         }
@@ -324,10 +372,10 @@ namespace GraphTheory
         {
             if (depobj is GraphControl)
             {
-                GraphControl c = depobj as GraphControl;
+                GraphControl gp = depobj as GraphControl;
                 if (args.NewValue != args.OldValue)
                 {
-                    GraphControl.Relation.AllRelations.ForEach(t => t.Txt.Background = args.NewValue as Brush);
+                    gp.AllRelations.ForEach(t => t.Txt.Background = args.NewValue as Brush);
                 }
             }
         }
@@ -361,7 +409,7 @@ namespace GraphTheory
         #endregion
 
         #region Методы для исправления неправильных значений для свойств зависимости
-        public static object CoerceColor(DependencyObject depObj,object color)
+        public static object CoerceColor(DependencyObject depObj, object color)
         {
             if (!(color is Brush) || color == null)
             {
@@ -396,7 +444,7 @@ namespace GraphTheory
 
             PeakWidthProperty =
             DependencyProperty.Register("PeakWidth", typeof(double), typeof(GraphControl),
-            new UIPropertyMetadata((double)10, new PropertyChangedCallback(PeakWidthChanged),new CoerceValueCallback(CoerceWidth)));
+            new UIPropertyMetadata((double)10, new PropertyChangedCallback(PeakWidthChanged), new CoerceValueCallback(CoerceWidth)));
 
             RelationWidthProperty =
             DependencyProperty.Register("RelationWidth", typeof(double), typeof(GraphControl),
@@ -407,7 +455,7 @@ namespace GraphTheory
            "Background",
            typeof(Brush),
            typeof(GraphControl),
-           new UIPropertyMetadata(Brushes.White, 
+           new UIPropertyMetadata(Brushes.White,
            new PropertyChangedCallback(BackgroundChanged), new CoerceValueCallback(CoerceColor)));
 
             RelationColorProperty =
@@ -457,14 +505,14 @@ namespace GraphTheory
         #region Сохранение/Загрузка
         public void SaveGraph(string filename)
         {
-            SavingParameters sp = new SavingParameters(Peak.AllPeaks, PeakWidth, this);
+            SavingParameters sp = new SavingParameters(AllPeaks, PeakWidth, this);
             sp.SaveGraphField(filename);
         }
         public void LoadGraph(string filename)
         {
             FirstPeak = null;
             SecondPeak = null;
-            SavingParameters sp = new SavingParameters(Peak.AllPeaks, PeakWidth, this);
+            SavingParameters sp = new SavingParameters(AllPeaks, PeakWidth, this);
             sp.LoadGraphField(filename);
         }
 
@@ -513,9 +561,9 @@ namespace GraphTheory
                     }
                     foreach (SerializableRelation i in SavedRelations)
                     {
-                        owner.FirstPeak = Peak.FindByName(i.FromPeak);
-                        owner.SecondPeak = Peak.FindByName(i.ToPeak);
-                        owner.AddNewRelation(i.Type, i.weight, false);
+                        Peak FirstPk = owner.FindPeakByName(i.FromPeak);
+                        Peak SecondPk = owner.FindPeakByName(i.ToPeak);
+                        owner.AddNewRelation(FirstPk, SecondPk, i.Type, i.weight, false);
                     }
                     MessageBox.Show("Вроде как всё загружено!");
                 }
@@ -527,7 +575,7 @@ namespace GraphTheory
         }
 
         [Serializable]
-        public class SerializablePeak
+        private class SerializablePeak
         {
             public double Left, Top;
             public string Txt;
@@ -543,7 +591,7 @@ namespace GraphTheory
         }
 
         [Serializable]
-        public class SerializableRelation
+        private class SerializableRelation
         {
             public string FromPeak;
             public string ToPeak;
@@ -562,6 +610,9 @@ namespace GraphTheory
         #endregion
 
         #endregion
+
+        public List<Peak> AllPeaks { get; private set; } = new List<Peak>();
+        public List<Relation> AllRelations { get; private set; } = new List<Relation>();
 
         private Peak FirstPeak;
         private Peak SecondPeak;
@@ -589,22 +640,22 @@ namespace GraphTheory
 
 
         // Добавить ребро
-        public bool AddNewRelation(TypeOfRelation type, double weight = 0, bool isAnimated = true)
+        public bool AddNewRelation(Peak FirstPeak, Peak SecondPeak, TypeOfRelation type, double weight = 0, bool isAnimated = true)
         {
             if (FirstPeak != null && SecondPeak != null)
             {
                 if (weight < 0) weight = 0;
-                Relation rel = new Relation(FirstPeak, SecondPeak, weight, type);
-                double X1 = Canvas.GetLeft(rel.FromPeak.El);
-                double X2 = Canvas.GetLeft(rel.ToPeak.El);
-                double Y1 = Canvas.GetTop(rel.FromPeak.El);
-                double Y2 = Canvas.GetTop(rel.ToPeak.El);
+                if (weight > 35000) weight = 35000;
+                double X1 = Canvas.GetLeft(FirstPeak.El);
+                double X2 = Canvas.GetLeft(SecondPeak.El);
+                double Y1 = Canvas.GetTop(FirstPeak.El);
+                double Y2 = Canvas.GetTop(SecondPeak.El);
+                FrameworkElement FrEl = null;
                 switch (type)
                 {
                     case TypeOfRelation.Oriented:
-                        FirstPeak.Relations.Add(rel);
-                        SecondPeak.Relations.Add(rel);
                         Arrow ar = new Arrow();
+                        FrEl = ar;
                         ar.gc = this;
                         ar.X1 = X1;
                         ar.Y1 = Y1;
@@ -614,7 +665,6 @@ namespace GraphTheory
                         ar.HeadWidth = 20;
                         ar.Stroke = RelationColor;
                         ar.StrokeThickness = 4;
-                        rel.LineObj = ar;
                         Canvas.SetZIndex(ar, -1);
                         if (isAnimated)
                         {
@@ -677,16 +727,14 @@ namespace GraphTheory
                         canv.Children.Add(ar);
                         break;
                     case TypeOfRelation.NonOriented:
-                        FirstPeak.Relations.Add(rel);
-                        SecondPeak.Relations.Add(rel);
                         Line l = new Line();
+                        FrEl = l;
                         l.X1 = X1;
                         l.Y1 = Y1;
                         l.X2 = X1;
                         l.Y2 = Y1;
                         l.Stroke = RelationColor;
                         l.StrokeThickness = 4;
-                        rel.LineObj = l;
                         Canvas.SetZIndex(l, -1);
                         if (isAnimated)
                         {
@@ -744,23 +792,25 @@ namespace GraphTheory
                         canv.Children.Add(l);
                         break;
                 }
-                if (weight >= 0)
-                {
-                    TextBox tb = new TextBox();
-                    tb.IsReadOnly = true;
-                    tb.Background = WeightBackground;
-                    tb.Foreground = WeightForeground;
-                    tb.BorderThickness = new Thickness(0);
-                    tb.MouseDoubleClick += Tb_MouseDoubleClick;
-                    tb.KeyDown += tb_KeyDown;
-                    tb.Text = weight.ToString();                    
-                    rel.Txt = tb;
-                    Canvas.SetLeft(tb, (X1 + X2) / 2);
-                    Canvas.SetTop(tb, (Y1 + Y2) / 2);
-                    canv.Children.Add(tb);
-                }
+
+                TextBox tb = new TextBox();
+                tb.IsReadOnly = true;
+                tb.Background = WeightBackground;
+                tb.Foreground = WeightForeground;
+                tb.BorderThickness = new Thickness(0);
+                tb.MouseDoubleClick += Tb_MouseDoubleClick;
+                tb.KeyDown += tb_KeyDown;
+                tb.Text = weight.ToString();
+                Canvas.SetLeft(tb, (X1 + X2) / 2);
+                Canvas.SetTop(tb, (Y1 + Y2) / 2);
+                canv.Children.Add(tb);
+
                 CancelSelectionPeaks();
-                OnEdgeCreated(new EventArgs());
+                Relation rel = new Relation(FirstPeak, SecondPeak, weight, type,FrEl,tb);
+                FirstPeak.Relations.Add(rel);
+                SecondPeak.Relations.Add(rel);
+                OnEdgeCreated(new RelationArgs(rel));
+                AllRelations.Add(rel);
                 return true;
             }
             else
@@ -790,6 +840,7 @@ namespace GraphTheory
             if (name == "null value")
             {
                 tb.Text = PeakNum.ToString();
+                PeakNum++;
             }
             else
             {
@@ -841,52 +892,49 @@ namespace GraphTheory
                 el.Height = PeakWidth;
             }
 
-            // Инкремент счётчика названий
-            PeakNum++;
-            new Peak(el, tb);
+            Peak p = new Peak(el, tb, this);
+            AllPeaks.Add(p);
+            OnPeakCreated(new PeakArgs(p));
         }
         // Выбрать вершину для соединения
-        private void SelectPeak(object sender, MouseButtonEventArgs e)
+        public void SelectPeak(Peak SelectingPeak)
         {
             DoubleAnimation da = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.3));
             da.AutoReverse = true;
             da.RepeatBehavior = RepeatBehavior.Forever;
-            Ellipse ClickedEllipse = null;
-            if ((e.Source as FrameworkElement) is Ellipse)
-                ClickedEllipse = (e.Source as FrameworkElement) as Ellipse;
-            if (ClickedEllipse != null && FirstPeak == null)
+            if (SelectingPeak != null && FirstPeak == null)
             {
-                FirstPeak = Peak.FindByEllipse(ClickedEllipse);
+                FirstPeak = SelectingPeak;
                 (FirstPeak.El).Stroke = Brushes.Red;
-                OnFirstPeakSelected(new EventArgs());
+                OnFirstPeakSelected(new PeakArgs(FirstPeak));
             }
-            else if (ClickedEllipse != null && SecondPeak == null)
+            else if (SelectingPeak != null && SecondPeak == null)
             {
-                SecondPeak = Peak.FindByEllipse(ClickedEllipse);
+                SecondPeak = SelectingPeak;
                 (SecondPeak.El as Ellipse).Stroke = Brushes.Red;
-                OnSecondPeakSelected(new EventArgs());
+                OnSecondPeakSelected(new PeakArgs(SecondPeak));
 
                 if (AutoWork && Mode.AddEdge == CurrentMode)
                 {
-                    TheoryDlg dlg = new TheoryDlg(this);
+                    TheoryDlg dlg = new TheoryDlg(this, FirstPeak, SecondPeak);
                     dlg.ShowDialog();
                 }
                 if (isFindingMaxFlow && AutoWork)
                 {
-                    MessageBox.Show(MaxFlow().ToString());
+                    MessageBox.Show(MaxFlow(FirstPeak, SecondPeak).ToString());
                     CancelSelectionPeaks();
                     isFindingMaxFlow = false;
                     CurrentMode = PreviousMode;
                 }
             }
-            else if (ClickedEllipse != null)
+            else if (SelectingPeak != null)
             {
                 (FirstPeak.El as Ellipse).Stroke = Brushes.Black;
                 (SecondPeak.El as Ellipse).Stroke = Brushes.Black;
                 SecondPeak = null;
-                FirstPeak = Peak.FindByEllipse(ClickedEllipse);
+                OnNewFirstPeakSelected(new NewPeakArgs(FirstPeak, SelectingPeak));
+                FirstPeak = SelectingPeak;
                 (FirstPeak.El as Ellipse).Stroke = Brushes.Red;
-                OnNewFirstPeakSelected(new EventArgs());
             }
         }
         // Отменить выбор вершин
@@ -907,8 +955,8 @@ namespace GraphTheory
         public void ClearField()
         {
             canv.Children.Clear();
-            Peak.AllPeaks.Clear();
-            Relation.AllRelations.Clear();
+            AllPeaks.Clear();
+            AllRelations.Clear();
             FirstPeak = null;
             SecondPeak = null;
             EditingTextBox = null;
@@ -916,34 +964,35 @@ namespace GraphTheory
         }
 
         // Удаления объектов
-        private void DeleteObject(object src)
+        public void DeleteObject(object src)
         {
             if (src is Ellipse)
             {
                 Ellipse el = src as Ellipse;
-                Peak p = Peak.FindByEllipse(el);
+                Peak p = FindPeakByEllipse(el);
                 canv.Children.Remove(el);
-                canv.Children.Remove(p.tb);
+                canv.Children.Remove(p.Tb);
                 while (p.Relations.Count > 0)
                 {
                     canv.Children.Remove(p.Relations[0].LineObj);
                     canv.Children.Remove(p.Relations[0].Txt);
-                    Relation.AllRelations.Remove(p.Relations[0]);
+                    AllRelations.Remove(p.Relations[0]);
                     p.Relations.RemoveAt(0);
                 }
-                Peak.AllPeaks.Remove(p);
+                AllPeaks.Remove(p);
                 if (FirstPeak == p) FirstPeak = null;
                 if (SecondPeak == p) SecondPeak = null;
+                OnPeakDeleted(new PeakArgs(p));
             }
             else if (src is Line || src is Arrow)
             {
-                Relation r = Relation.FindByLine(src as FrameworkElement);
+                Relation r = FindRelationByLine(src as FrameworkElement);
                 canv.Children.Remove(r.LineObj);
                 canv.Children.Remove(r.Txt);
-                Relation.AllRelations.Remove(r);
+                AllRelations.Remove(r);
                 r.FromPeak.Relations.Remove(r);
                 r.ToPeak.Relations.Remove(r);
-
+                OnRelationDeleted(new RelationArgs(r));
             }
         }
 
@@ -959,16 +1008,23 @@ namespace GraphTheory
             {
                 case Mode.AddPeak:
                     CreatePeak(e.GetPosition(canv));
-                    OnPeakCreated(new EventArgs());
                     break;
                 case Mode.AddEdge:
-                    SelectPeak(sender, e);
+                    if ((e.Source as FrameworkElement) is Ellipse)
+                    {
+                        Peak p = FindPeakByEllipse((e.Source as FrameworkElement) as Ellipse);
+                        SelectPeak(p);
+                    }
                     break;
                 case Mode.DeleteSelected:
                     DeleteObject(e.Source);
                     break;
                 case Mode.SelectForAlghorithm:
-                    SelectPeak(sender, e);
+                    if ((e.Source as FrameworkElement) is Ellipse)
+                    {
+                        Peak p = FindPeakByEllipse((e.Source as FrameworkElement) as Ellipse);
+                        SelectPeak(p);
+                    }
                     break;
                 case Mode.MoveObjects:
                     DraggingEllipse = e.Source as Ellipse;
@@ -993,7 +1049,7 @@ namespace GraphTheory
                 Canvas.SetLeft(DraggingEllipse, x);
                 Canvas.SetTop(DraggingEllipse, y);
                 // Для правильного отображения анимации при смене координат вершины
-                if (Peak.FindByEllipse(DraggingEllipse) == ConnectingSecondPeak)
+                if (FindPeakByEllipse(DraggingEllipse) == ConnectingSecondPeak)
                 {
                     DoubleAnimation LeftAnim = new DoubleAnimation(Canvas.GetLeft(ConnectingSecondPeak.El),
                                                 TimeSpan.FromSeconds(0.3));
@@ -1011,7 +1067,7 @@ namespace GraphTheory
                     }
                 }
                 // Изменяет положение всех надписей с весом, относительно грани
-                foreach (Relation rel in Peak.FindByEllipse(DraggingEllipse).Relations)
+                foreach (Relation rel in FindPeakByEllipse(DraggingEllipse).Relations)
                 {
                     if (rel.Txt != null)
                     {
@@ -1140,7 +1196,7 @@ namespace GraphTheory
         {
             if (EditingTextBox != null && e?.Source != EditingTextBox)
             {
-                Peak tb = Peak.FindByTextBox(EditingTextBox);
+                Peak tb = FindPeakByTextBox(EditingTextBox);
                 if (tb != null)
                 {
                     if (!tb.SetName(EditingTextBox.Text))
@@ -1151,7 +1207,7 @@ namespace GraphTheory
                 }
                 else
                 {
-                    Relation r = Relation.FindByWeightTextBox(EditingTextBox);
+                    Relation r = FindRelationByTextBox(EditingTextBox);
                     try
                     {
                         double buf = double.Parse(r.Txt.Text);
@@ -1225,7 +1281,7 @@ namespace GraphTheory
         #endregion
 
         #region Алгоритмы
-        public double MaxFlow()
+        public double MaxFlow(Peak FirstPeak, Peak SecondPeak)
         {
             Peak source = FirstPeak;
             Peak destination = SecondPeak;
@@ -1234,7 +1290,7 @@ namespace GraphTheory
             List<Relation> SaturatedRelations = new List<Relation>();
             //Вес граней во время работы алгоритма
             List<double> RealRelationsWeight = new List<double>();
-            RealRelationsWeight = Relation.AllRelations.Select(t => t.Weight).ToList();
+            RealRelationsWeight = AllRelations.Select(t => t.Weight).ToList();
 
             List<Relation> Way = null;
             double SumSaturatedRelations = 0;
@@ -1243,12 +1299,12 @@ namespace GraphTheory
                 Way = FindWay(ref source, ref destination);
                 if (Way != null)
                 {
-                    double min = Way.Min(t => RealRelationsWeight[Relation.AllRelations.IndexOf(t)]);
+                    double min = Way.Min(t => RealRelationsWeight[AllRelations.IndexOf(t)]);
                     SumSaturatedRelations += min;
                     AllWays.Add(Way);
                     foreach (Relation r in Way)
                     {
-                        int i = Relation.AllRelations.IndexOf(r);
+                        int i = AllRelations.IndexOf(r);
                         RealRelationsWeight[i] -= min;
                     }
                     SaturatedRelations.AddRange(Way.Where(t => t.Weight == min).ToList());
@@ -1267,20 +1323,21 @@ namespace GraphTheory
                 Peak CheckingPeak = src;
                 while (!isEnded)
                 {
+                    List<Relation> AllOutputRelations = CheckingPeak.Relations.Where(t => ((t.Type == TypeOfRelation.NonOriented) || (t.Type == TypeOfRelation.Oriented && t.FromPeak == CheckingPeak))).ToList();
                     // В outputRel хранятся ненасыщенные соединения, которые ещё не были пройдены и
-                    List<Relation> outputRel = CheckingPeak.GetOutputRelations().Where(t =>
+                    List<Relation> AvaliableOutputRel = AllOutputRelations.Where(t =>
                                                                                             !SaturatedRelations.Contains(t) &&
                                                                                             !CurWay.Contains(t) &&
                                                                                             !CheckedRelations.Contains(t)).ToList();
 
-                    if (CheckingPeak == src && outputRel.Count == 0 && CurWay.Count == 0)
+                    if (CheckingPeak == src && AvaliableOutputRel.Count == 0 && CurWay.Count == 0)
                     {
                         isEnded = true;
                     }
 
-                    if (outputRel.Count != 0)
+                    if (AvaliableOutputRel.Count != 0)
                     {
-                        CurWay.Add(outputRel[0]);
+                        CurWay.Add(AvaliableOutputRel[0]);
                         CheckingPeak = CurWay.Last().FromPeak == CheckingPeak ? CurWay.Last().ToPeak : CurWay.Last().FromPeak;
                     }
                     else
@@ -1307,24 +1364,25 @@ namespace GraphTheory
         #region классы Peak/Relation
         public class Peak
         {
-            public static List<Peak> AllPeaks { get; private set; } = new List<Peak>();
 
-            public Ellipse El { get; set; }
-            public TextBox tb { get; set; }
-            public string Name { get; set; }
-            public List<Relation> Relations { get; set; }
+            public Ellipse El { get; private set; }
+            public TextBox Tb { get; private set; }
+            public string Name { get; private set; }
+            public List<Relation> Relations { get; private set; }
+            public GraphControl Owner { get; private set; }
 
-            public Peak(Ellipse el, TextBox name)
+            public Peak(Ellipse el, TextBox name, GraphControl owner)
             {
                 El = el;
-                tb = name;
+                Tb = name;
                 Name = name.Text;
                 Relations = new List<Relation>();
-                AllPeaks.Add(this);
+                Owner = owner;
             }
+
             public bool SetName(string name)
             {
-                Peak p = FindByName(name);
+                Peak p = Owner.FindPeakByName(name);
                 if (p == null || name == Name)
                 {
                     Name = name;
@@ -1332,24 +1390,21 @@ namespace GraphTheory
                 }
                 return false;
             }
-            public List<Relation> GetOutputRelations()
-            {
-                return Relations.Where(t => ((t.Type == TypeOfRelation.NonOriented) || (t.Type == TypeOfRelation.Oriented && t.FromPeak == this))).ToList();
-            }
-
-            public static Peak FindByEllipse(Ellipse ElForSearch) => AllPeaks.Where(t => t.El == ElForSearch).FirstOrDefault();
-            public static Peak FindByTextBox(TextBox TbForSearch) => AllPeaks.Where(t => t.tb == TbForSearch).FirstOrDefault();
-            public static Peak FindByName(string findingName) => AllPeaks.Where(t => t.Name == findingName).FirstOrDefault();
         }
+
+        public Peak FindPeakByEllipse(Ellipse ElForSearch) => AllPeaks.Where(t => t.El == ElForSearch).FirstOrDefault();
+        public Peak FindPeakByTextBox(TextBox TbForSearch) => AllPeaks.Where(t => t.Tb == TbForSearch).FirstOrDefault();
+        public Peak FindPeakByName(string findingName) => AllPeaks.Where(t => t.Name == findingName).FirstOrDefault();
+
+
         public class Relation
         {
-            public static List<Relation> AllRelations { get; private set; } = new List<Relation>() {  };
             public double Weight { get; set; }
-            public Peak FromPeak { get; set; }
-            public Peak ToPeak { get; set; }
-            public TextBox Txt { get; set; }
-            public TypeOfRelation Type { get; set; }
-            public FrameworkElement LineObj { get; set; }
+            public Peak FromPeak { get; private set; }
+            public Peak ToPeak { get; private set; }
+            public TextBox Txt { get; private set; }
+            public TypeOfRelation Type { get; private set; }
+            public FrameworkElement LineObj { get; private set; }
 
             public Relation(Peak from, Peak to, double weight, TypeOfRelation type, FrameworkElement line = null, TextBox txt = null)
             {
@@ -1359,13 +1414,11 @@ namespace GraphTheory
                 Type = type;
                 Txt = txt;
                 LineObj = line;
-                AllRelations.Add(this);
             }
-
-            public static Relation FindByLine(FrameworkElement line) => AllRelations.Where(t => t.LineObj == line).FirstOrDefault();
-
-            public static Relation FindByWeightTextBox(TextBox labelForSearch) => AllRelations.Where(t => t.Txt == labelForSearch).FirstOrDefault();
         }
+
+        public Relation FindRelationByLine(FrameworkElement line) => AllRelations.Where(t => t.LineObj == line).FirstOrDefault();
+        public Relation FindRelationByTextBox(TextBox labelForSearch) => AllRelations.Where(t => t.Txt == labelForSearch).FirstOrDefault();
         #endregion
 
         #region Управление цветами компонента
@@ -1511,5 +1564,6 @@ namespace GraphTheory
         #endregion
 
         #endregion
+
     }
 }
