@@ -16,7 +16,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Canvas x:Name="canv" MouseLeftButtonDown="Canv_MouseLeftButtonDown" MouseDown="canv_MouseDown" Grid.Column="1" Background="White" Grid.Row="1" MouseLeftButtonUp="canv_MouseLeftButtonUp"/>
+        <Canvas x:Name="canv" MouseLeftButtonDown="Canv_MouseLeftButtonDown" Grid.Column="1" Background="White" Grid.Row="1" MouseLeftButtonUp="canv_MouseLeftButtonUp"/>
         <TabControl  x:Name="exp">
             <TabItem >
                 <TabItem.Header>

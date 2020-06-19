@@ -9,12 +9,7 @@
         mc:Ignorable="d"
         Title="MainWindow">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <out:GraphControl x:Name="GraphComp2" AutoWork="True" Grid.Row="0" />
-        <out:GraphControl x:Name="GraphComp" AutoWork="True" Grid.Row="1"  />
+        <out:GraphControl x:Name="GraphComp" AutoWork="True" />
         <!--<ToolBarTray>
             <ToolBar>
                 <tlkit:ColorPicker x:Name="ClrPick" Width="100" SelectedColorChanged="ClrPick_SelectedColorChanged"/>

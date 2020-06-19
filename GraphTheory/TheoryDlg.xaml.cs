@@ -47,6 +47,7 @@ namespace GraphTheory
                     if (norient.IsChecked ?? false) type = TypeOfRelation.NonOriented;
                     if (Gc.AddNewRelation(FirstPeak,SecondPeak,type, w))
                     {
+                        Gc.CancelSelectionPeaks();
                         Close();
                     }
                     else
